@@ -77,7 +77,7 @@ export default createReducer(initialState, {
             'isAuthenticated': false,
             'token': null,
             'userName': null,
-            'registerStatusText': `Register Error: ${payload.status} ${payload.statusText}`
+            'registerStatusText': `Register Error: ${payload.status} ${payload.statusText} ${payload.message}`
         });
     }
 });

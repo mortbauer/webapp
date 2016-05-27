@@ -128,29 +128,32 @@ export default class RegisterView extends React.Component {
                                 {this.props.registerStatusText}
                             </div>
                         }
-
-                        <div className="col-md-12">
-                            <TextField
-                                hintText="Email"
-                                floatingLabelText="Email"
-                                type="email"
-                                errorText={this.state.email_error_text}
-                                onChange={(e) =>this.changeValue(e, 'email')}
+                        <form className='form-horizontal'>
+                            <div className="col-md-12">
+                                <TextField
+                                    hintText="Email"
+                                    floatingLabelText="Email"
+                                    type="email"
+                                    errorText={this.state.email_error_text}
+                                    onChange={(e) =>this.changeValue(e, 'email')}
+                                />
+                            </div>
+                            <div className="col-md-12">
+                                <TextField
+                                    hintText="Password"
+                                    floatingLabelText="Password"
+                                    type="password"
+                                    errorText={this.state.password_error_text}
+                                    onChange={(e) => this.changeValue(e, 'password')}
+                                />
+                            </div>
+                            <RaisedButton 
+                                disabled={this.state.disabled} 
+                                style={{"marginTop": 50}} 
+                                label="Submit"
+                                onClick={(e) => this.login(e)}
                             />
-                        </div>
-                        <div className="col-md-12">
-                            <TextField
-                                hintText="Password"
-                                floatingLabelText="Password"
-                                type="password"
-                                errorText={this.state.password_error_text}
-                                onChange={(e) => this.changeValue(e, 'password')}
-                            />
-                        </div>
-
-                        <RaisedButton disabled={this.state.disabled} style={{"marginTop": 50}} label="Submit"
-                                      onClick={(e) => this.login(e)}/>
-
+                        </form>
                     </div>
                 </Paper>
 

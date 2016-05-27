@@ -133,6 +133,7 @@ export default class LoginView extends React.Component {
 
                             <div className="col-md-12">
                                 <TextField
+                                    name="email"
                                     hintText="Email"
                                     floatingLabelText="Email"
                                     type="email"
@@ -142,6 +143,7 @@ export default class LoginView extends React.Component {
                             </div>
                             <div className="col-md-12">
                                 <TextField
+                                    name="password"
                                     hintText="Password"
                                     floatingLabelText="Password"
                                     type="password"
