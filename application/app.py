@@ -20,6 +20,12 @@ def any_root_path(path):
 def get_current_user():
     return jsonify(result=g.current_user)
 
+@app.route("/api/users", methods=["GET"])
+@requires_auth
+def get_users():
+    users = models.User.query.filter().all()
+    return jsonify(result=[{'id':x.id,'email':x.email} for x in users])
+
 @app.route("/api/usermeta/<int:user_id>", methods=["GET"])
 @requires_auth
 def get_usermeta(user_id):
@@ -77,3 +83,21 @@ def is_token_valid():
         return jsonify(token_is_valid=True)
     else:
         return jsonify(token_is_valid=False), 403
+
+@app.route("/api/transactions", methods=["GET"])
+@requires_auth
+def get_transactions():
+    serialized = []
+    for tr in models.Transaction.query.filter().all():
+        serialized.append({
+            'id':tr.id,
+            'amount':tr.amount,
+            'bic_blz':tr.bic_blz,
+            'iban_knr':tr.iban_knr,
+            'our_iban':tr.our_iban,
+            'date':tr.date.isoformat(),
+            'comment':tr.comment,
+            'transaction_number':tr.transaction_number,
+        })
+    return jsonify(result=serialized)
+

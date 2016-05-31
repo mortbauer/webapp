@@ -33,3 +33,14 @@ class UserMeta(db.Model):
     surname = db.Column(db.String(255))
     user_id = db.Column(db.Integer(), ForeignKey('user.id'))
     user = relationship('User',back_populates='meta')
+
+
+class Transaction(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    our_iban = db.Column(db.String(25))
+    date = db.Column(db.Date())
+    bic_blz = db.Column(db.String(25))
+    transaction_number = db.Column(db.String(25))
+    iban_knr = db.Column(db.String(25))
+    amount = db.Column(db.Float())
+    comment = db.Column(db.String(255))
