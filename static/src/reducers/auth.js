@@ -13,7 +13,8 @@ import jwtDecode from 'jwt-decode';
 
 const initialState = {
     token: null,
-    userName: null,
+    email: null,
+    id: null,
     isAuthenticated: false,
     isAuthenticating: false,
     statusText: null,
@@ -30,11 +31,13 @@ export default createReducer(initialState, {
         });
     },
     [LOGIN_USER_SUCCESS]: (state, payload) => {
+        var jwt = jwtDecode(payload.token);
         return Object.assign({}, state, {
             'isAuthenticating': false,
             'isAuthenticated': true,
             'token': payload.token,
-            'userName': jwtDecode(payload.token).email,
+            'email': jwt.email,
+            'id': jwt.id,
             'statusText': 'You have been successfully logged in.'
         });
 
@@ -44,7 +47,8 @@ export default createReducer(initialState, {
             'isAuthenticating': false,
             'isAuthenticated': false,
             'token': null,
-            'userName': null,
+            'email': null,
+            'id': null,
             'statusText': `Authentication Error: ${payload.status} ${payload.statusText}`
         });
     },
@@ -52,17 +56,20 @@ export default createReducer(initialState, {
         return Object.assign({}, state, {
             'isAuthenticated': false,
             'token': null,
-            'userName': null,
+            'email': null,
+            'id': null,
             'statusText': 'You have been successfully logged out.'
         });
     },
     [REGISTER_USER_SUCCESS]: (state, payload) => {
+        var jwt = jwtDecode(payload.token);
         return Object.assign({}, state, {
             'isAuthenticating': false,
             'isAuthenticated': true,
             'isRegistering': false,
             'token': payload.token,
-            'userName': jwtDecode(payload.token).email,
+            'email': jwt.email,
+            'id': jwt.id,
             'registerStatusText': 'You have been successfully logged in.'
         });
 
@@ -76,8 +83,9 @@ export default createReducer(initialState, {
         return Object.assign({}, state, {
             'isAuthenticated': false,
             'token': null,
-            'userName': null,
-            'registerStatusText': `Register Error: ${payload.status} ${payload.statusText} ${payload.message}`
+            'email': null,
+            'id': null,
+            'registerStatusText': `Register Error: ${payload.status} ${payload.statusText}`
         });
     }
 });

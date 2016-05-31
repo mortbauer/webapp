@@ -6,6 +6,7 @@ import * as actionCreators from '../actions/data';
 function mapStateToProps(state) {
     return {
         data: state.data,
+        user_id: state.auth.id,
         token: state.auth.token,
         loaded: state.data.loaded,
         isFetching: state.data.isFetching
@@ -31,7 +32,9 @@ export default class ProtectedView extends React.Component {
 
     fetchData() {
         let token = this.props.token;
-        this.props.fetchProtectedData(token);
+        var user_id = this.props.user_id;
+        console.log(`api/usermeta/${user_id}`);
+        this.props.fetchProtectedData(token,`api/usermeta/${user_id}`);
     }
 
     render() {
@@ -43,7 +46,7 @@ export default class ProtectedView extends React.Component {
                     :
                     <div>
                         <h1>Welcome back,
-                            {this.props.userName}!</h1>
+                            {this.props.email}!</h1>
                         <h1>{this.props.data.data.email}</h1>
                     </div>
                 }

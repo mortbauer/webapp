@@ -103,24 +103,20 @@ export default class LoginView extends React.Component {
         })
     }
 
-    _handleKeyPress(e) {
-        if (e.key === 'Enter') {
-            if (!this.state.disabled) {
-                this.login(e)
-            }
-        }
-    }
-
     login(e) {
         e.preventDefault();
-        this.props.loginUser(this.state.email, this.state.password, this.state.redirectTo);
+        this.props.loginUser(
+            this.state.email,
+            this.state.password,
+            this.state.redirectTo
+        );
     }
 
     render() {
         return (
-            <div className='col-md-6 col-md-offset-3' onKeyPress={(e) => this._handleKeyPress(e)}>
+            <div className='col-md-6 col-md-offset-3'>
                 <Paper style={style}>
-                    <form role='form'>
+                    <form role='form' onSubmit={(e) => this.login(e)}>
                         <div className="text-center">
                             <h2>Login to view protected content!</h2>
                             {
@@ -128,15 +124,14 @@ export default class LoginView extends React.Component {
                                 <div className='alert alert-info'>
                                     {this.props.statusText}
                                 </div>
-
                             }
-
                             <div className="col-md-12">
                                 <TextField
                                     name="email"
+                                    id="email"
+                                    type="email"
                                     hintText="Email"
                                     floatingLabelText="Email"
-                                    type="email"
                                     errorText={this.state.email_error_text}
                                     onChange={(e) =>this.changeValue(e, 'email')}
                                 />
@@ -144,24 +139,25 @@ export default class LoginView extends React.Component {
                             <div className="col-md-12">
                                 <TextField
                                     name="password"
+                                    id="password"
+                                    type="password"
                                     hintText="Password"
                                     floatingLabelText="Password"
-                                    type="password"
                                     errorText={this.state.password_error_text}
                                     onChange={(e) => this.changeValue(e, 'password')}
                                 />
                             </div>
-
-                            <RaisedButton disabled={this.state.disabled} style={{"marginTop": 50}} label="Submit"
-                                          onClick={(e) => this.login(e)}/>
-
+                            <RaisedButton 
+                                type="submit" 
+                                disabled={this.state.disabled} 
+                                style={{"marginTop": 50}} 
+                                label="Submit"
+                            />
                         </div>
                     </form>
                 </Paper>
-
             </div>
         );
-
     }
 }
 

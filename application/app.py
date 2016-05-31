@@ -24,7 +24,7 @@ def get_current_user():
 @requires_auth
 def get_usermeta(user_id):
     meta = models.User.query.filter_by(id=user_id).first().meta
-    return jsonify(username=meta.username,surname=meta.surname)
+    return jsonify(result={'username':meta.username,'surname':meta.surname})
 
 @app.route("/api/usermeta/<int:user_id>", methods=["PUT"])
 @requires_auth

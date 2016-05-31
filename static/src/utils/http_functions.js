@@ -39,6 +39,6 @@ export function has_github_token(token) {
     return axios.get('api/has_github_token', tokenConfig(token))
 }
 
-export function data_about_user(token) {
-    return axios.get('api/current_user', tokenConfig(token))
+export function protected_endpoint(token,endpoint) {
+    return axios.get(endpoint, tokenConfig(token))
 }

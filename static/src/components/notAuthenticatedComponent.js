@@ -8,7 +8,7 @@ import { browserHistory } from 'react-router'
 function mapStateToProps(state) {
     return {
         token: state.auth.token,
-        userName: state.auth.userName,
+        email: state.auth.email,
         isAuthenticated: state.auth.isAuthenticated
     }
 };

@@ -11,7 +11,7 @@ import {validateEmail} from '../utils/misc'
 function mapStateToProps(state) {
     return {
         isRegistering: state.auth.isRegistering,
-        registerStatusText: state.auth.registerStatusText
+        statusText: state.auth.registerStatusText
     }
 };
 
@@ -103,60 +103,59 @@ export default class RegisterView extends React.Component {
         })
     }
 
-    _handleKeyPress(e) {
-        if (e.key === 'Enter') {
-            if (!this.state.disabled) {
-                this.login(e)
-            }
-        }
-    }
-
     login(e) {
         e.preventDefault();
-        this.props.registerUser(this.state.email, this.state.password, this.state.redirectTo);
+        this.props.registerUser(
+            this.state.email, 
+            this.state.password, 
+            this.state.redirectTo
+        );
     }
 
     render() {
         return (
-            <div className='col-md-6 col-md-offset-3' onKeyPress={(e) => this._handleKeyPress(e)}>
+            <div className='col-md-6 col-md-offset-3'>
                 <Paper style={style}>
-                    <div className="text-center">
-                        <h2>Register to view protected content!</h2>
-                        {
-                            this.props.registerStatusText &&
-                            <div className='alert alert-info'>
-                                {this.props.registerStatusText}
-                            </div>
-                        }
-                        <form className='form-horizontal'>
+                    <form role='form' onSubmit={(e) => this.login(e)}>
+                        <div className="text-center">
+                            <h2>Register to view protected content!</h2>
+                            {
+                                this.props.statusText &&
+                                <div className='alert alert-info'>
+                                    {this.props.statusText}
+                                </div>
+                            }
                             <div className="col-md-12">
                                 <TextField
+                                    name="email"
+                                    id="email"
+                                    type="email"
                                     hintText="Email"
                                     floatingLabelText="Email"
-                                    type="email"
                                     errorText={this.state.email_error_text}
                                     onChange={(e) =>this.changeValue(e, 'email')}
                                 />
                             </div>
                             <div className="col-md-12">
                                 <TextField
+                                    name="password"
+                                    id="password"
+                                    type="password"
                                     hintText="Password"
                                     floatingLabelText="Password"
-                                    type="password"
                                     errorText={this.state.password_error_text}
                                     onChange={(e) => this.changeValue(e, 'password')}
                                 />
                             </div>
                             <RaisedButton 
+                                type="submit"
                                 disabled={this.state.disabled} 
                                 style={{"marginTop": 50}} 
                                 label="Submit"
-                                onClick={(e) => this.login(e)}
                             />
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </Paper>
-
             </div>
         );
 
