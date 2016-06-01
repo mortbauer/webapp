@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.bcrypt import Bcrypt
+from flask_socketio import SocketIO
 
 app = Flask(__name__, static_folder="../static/dist", template_folder="../static")
 if os.environ.get('PRODUCTION'):
@@ -11,3 +12,4 @@ else:
     app.config.from_object('config.TestingConfig')
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+socketio = SocketIO(app)

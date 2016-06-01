@@ -1,9 +1,10 @@
 from flask import request, render_template, jsonify, url_for, redirect, g
 from sqlalchemy.exc import IntegrityError
+from flask_socketio import emit
 
 from .utils.auth import generate_token, requires_auth, verify_token
 from .import models
-from .import app, db
+from .import app, db, socketio
 
 @app.route('/', methods=['GET'])
 def index():
@@ -20,17 +21,20 @@ def any_root_path(path):
 def get_current_user():
     return jsonify(result=g.current_user)
 
+
 @app.route("/api/users", methods=["GET"])
 @requires_auth
 def get_users():
     users = models.User.query.filter().all()
     return jsonify(result=[{'id':x.id,'email':x.email} for x in users])
 
+
 @app.route("/api/usermeta/<int:user_id>", methods=["GET"])
 @requires_auth
 def get_usermeta(user_id):
     meta = models.User.query.filter_by(id=user_id).first().meta
     return jsonify(result={'username':meta.username,'surname':meta.surname})
+
 
 @app.route("/api/usermeta/<int:user_id>", methods=["PUT"])
 @requires_auth
@@ -84,11 +88,12 @@ def is_token_valid():
     else:
         return jsonify(token_is_valid=False), 403
 
+
 @app.route("/api/transactions", methods=["GET"])
-@requires_auth
+#@requires_auth
 def get_transactions():
     serialized = []
-    for tr in models.Transaction.query.filter().all():
+    for tr in models.Transaction.query.filter().limit(10):
         serialized.append({
             'id':tr.id,
             'amount':tr.amount,

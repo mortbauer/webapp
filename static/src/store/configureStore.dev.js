@@ -4,6 +4,13 @@ import rootReducer from '../reducers';
 import DevTools from '../containers/DevTools';
 import createLogger from 'redux-logger';
 import { persistState} from 'redux-devtools';
+import axios from 'axios';
+import axiosMiddleware from 'redux-axios-middleware';
+
+const axiosClient = axios.create({
+    baseURL: 'api',
+    responseType: 'json'
+});
 
 const debugMiddleware = [
     createLogger({
@@ -12,7 +19,7 @@ const debugMiddleware = [
 ]
 
 const enhancer = compose(
-    applyMiddleware(thunkMiddleware, ...debugMiddleware),
+    applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient), ...debugMiddleware),
     DevTools.instrument(),
     persistState(
       window.location.href.match(/[?&]debug_session=([^&]+)\b/)

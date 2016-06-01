@@ -39,6 +39,10 @@ export function has_github_token(token) {
     return axios.get('api/has_github_token', tokenConfig(token))
 }
 
+export function get_transactions(token) {
+    return axios.get('api/transactions', tokenConfig(token))
+}
+
 export function protected_endpoint(token,endpoint) {
     return axios.get(endpoint, tokenConfig(token))
 }
