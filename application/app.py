@@ -90,10 +90,10 @@ def is_token_valid():
 
 
 @app.route("/api/transactions", methods=["GET"])
-#@requires_auth
+@requires_auth
 def get_transactions():
     serialized = []
-    for tr in models.Transaction.query.filter().limit(10):
+    for tr in models.Transaction.query.filter().all():
         serialized.append({
             'id':tr.id,
             'amount':tr.amount,
