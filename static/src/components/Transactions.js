@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../actions/transactions';
-import {Table, Column, Cell} from 'fixed-data-table';
+import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 function mapStateToProps(state) {
     return {
@@ -17,12 +17,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return bindActionCreators(actionCreators, dispatch)
 }
-
-const TextCell = ({rowIndex, data, columnKey, ...props}) => (
-  <Cell {...props}>
-    {data.getObjectAt(rowIndex)[columnKey]}
-  </Cell>
-);
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TransactionView extends React.Component {
@@ -50,26 +44,12 @@ export default class TransactionView extends React.Component {
                     :
                     <div>
                         <h1>Transactions</h1>
-                        <Table 
-                            height={40+((this.props.data.length+1) * 30)}
-                            width={1150}
-                            rowsCount={this.props.data.length}
-                            rowHeight={30}
-                            headerHeight={30}
-                            rowGetter={(rowIndex)=>{return this.props.data[rowIndex]; }}>
-                            <Column 
-                                columnKey="id" 
-                                header={<Cell> Id</Cell>}
-                                cell={<TextCell data={this.props.data}/>}
-                                width={50} 
-                            />
-                            <Column 
-                                columnKey="amount" 
-                                header={<Cell> Amount</Cell>}
-                                cell={<TextCell data={this.props.data}/>}
-                                width={50} 
-                            />
-                        </Table>
+                        <BootstrapTable data={this.props.data}>
+                          <TableHeaderColumn dataField="id" isKey={true}>ID</TableHeaderColumn>
+                          <TableHeaderColumn dataField="iban_knr">IBAN</TableHeaderColumn>
+                          <TableHeaderColumn dataField="amount">Amount</TableHeaderColumn>
+                          <TableHeaderColumn dataField="comment">Comment</TableHeaderColumn>
+                        </BootstrapTable>
                     </div>
                 }
             </div>

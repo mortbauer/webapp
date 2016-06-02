@@ -5,7 +5,8 @@ export function loadTransactions(token){
         type: FETCH_TRANSACTIONS,
         payload: {
             request: {
-                url: '/transactions'
+                url: '/transactions',
+                headers: {'Authorization':token}
             }
         }
     }
