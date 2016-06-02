@@ -8,7 +8,11 @@ class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
-    meta = relationship('UserMeta',uselist=False,back_populates='user')
+    username = db.Column(db.String(255))
+    name = db.Column(db.String(255))
+    surname = db.Column(db.String(255))
+    group_id = db.Column(db.Integer(), ForeignKey('group.id'))
+    group = relationship('Group',back_populates='users')
 
     def __init__(self, email, password):
         self.email = email
@@ -27,12 +31,11 @@ class User(db.Model):
         else:
             return None
 
-class UserMeta(db.Model):
+
+class Group(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    username = db.Column(db.String(255))
-    surname = db.Column(db.String(255))
-    user_id = db.Column(db.Integer(), ForeignKey('user.id'))
-    user = relationship('User',back_populates='meta')
+    name = db.Column(db.String(255))
+    users = relationship('User', back_populates='group')
 
 
 class Transaction(db.Model):
@@ -44,3 +47,4 @@ class Transaction(db.Model):
     iban_knr = db.Column(db.String(25))
     amount = db.Column(db.Float())
     comment = db.Column(db.String(255))
+

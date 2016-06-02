@@ -32,17 +32,17 @@ def get_users():
 @app.route("/api/usermeta/<int:user_id>", methods=["GET"])
 @requires_auth
 def get_usermeta(user_id):
-    meta = models.User.query.filter_by(id=user_id).first().meta
-    return jsonify(result={'username':meta.username,'surname':meta.surname})
+    user = models.User.query.filter_by(id=user_id).first()
+    return jsonify(result={'username':user.username,'surname':user.surname})
 
 
 @app.route("/api/usermeta/<int:user_id>", methods=["PUT"])
 @requires_auth
 def set_usermeta(user_id):
     incoming = request.get_json()
-    meta = models.User.query.filter_by(id=user_id).first().meta
-    meta.username = incoming['username']
-    meta.surname = incoming['surname']
+    user = models.User.query.filter_by(id=user_id).first()
+    user.username = incoming['username']
+    user.surname = incoming['surname']
     db.session.commit()
     return jsonify({'msg':'updated usermeta %s'%user_id})
 
