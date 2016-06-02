@@ -2,9 +2,8 @@ import React from 'react';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../actions/transactions';
-import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
-import { VirtualScroll, AutoSizer } from 'react-virtualized';
-import 'react-virtualized/styles.css'; // only needs to be imported once
+import Transaction from './Transaction';
+import Infinite from 'react-infinite';
 
 function mapStateToProps(state) {
     return {
@@ -38,137 +37,6 @@ export default class TransactionView extends React.Component {
     }
 
     render() {
-        var list = [
-            'hallo',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'hallo',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'hallo',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'hallo',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin',
-            'hallo',
-            'martin'
-            ];
         return (
             <div>
 
@@ -177,19 +45,15 @@ export default class TransactionView extends React.Component {
                     :
                     <div>
                         <h1>Transactions</h1>
-                            <AutoSizer disableHeight>
-                            {({ width }) => (
-                                <VirtualScroll 
-                                    width={700}
-                                    height={500}
-                                    rowCount={list.length}
-                                    rowHeight={20}
-                                    rowRenderer={
-                                        ({index, isScrolling})=>list[index]
-                                    }
+                        <Infinite containerHeight={600} elementHeight={60}>
+                            {this.props.data.map((transaction) => {
+                            return (
+                                <Transaction key={transaction.id}
+                                    transaction={transaction}
                                 />
-                            )}
-                            </AutoSizer>
+                            );
+                            })}
+                        </Infinite>
                     </div>
                 }
             </div>
