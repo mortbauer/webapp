@@ -50,12 +50,14 @@ export default class TransactionView extends React.Component {
 
     render() {
         var rows = [];
-        this.props.data.forEach((transaction) => {
-            if (transaction.comment.indexOf(this.state.filter_comment) === -1) {
-                return;
-            }
-            rows.push(<Transaction key={transaction.id} transaction={transaction}/>)
-        });
+        if (this.props.loaded == true){
+            this.props.data.forEach((transaction) => {
+                if (transaction.comment.indexOf(this.state.filter_comment) === -1) {
+                    return;
+                }
+                rows.push(<Transaction key={transaction.id} transaction={transaction}/>)
+            });
+        };
         return (
             <div>
 
