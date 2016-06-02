@@ -3,6 +3,8 @@ import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../actions/transactions';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
+import { VirtualScroll, AutoSizer } from 'react-virtualized';
+import 'react-virtualized/styles.css'; // only needs to be imported once
 
 function mapStateToProps(state) {
     return {
@@ -36,6 +38,137 @@ export default class TransactionView extends React.Component {
     }
 
     render() {
+        var list = [
+            'hallo',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'hallo',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'hallo',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'hallo',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin',
+            'hallo',
+            'martin'
+            ];
         return (
             <div>
 
@@ -44,12 +177,19 @@ export default class TransactionView extends React.Component {
                     :
                     <div>
                         <h1>Transactions</h1>
-                        <BootstrapTable data={this.props.data}>
-                          <TableHeaderColumn dataField="id" isKey={true}>ID</TableHeaderColumn>
-                          <TableHeaderColumn dataField="iban_knr">IBAN</TableHeaderColumn>
-                          <TableHeaderColumn dataField="amount">Amount</TableHeaderColumn>
-                          <TableHeaderColumn dataField="comment">Comment</TableHeaderColumn>
-                        </BootstrapTable>
+                            <AutoSizer disableHeight>
+                            {({ width }) => (
+                                <VirtualScroll 
+                                    width={700}
+                                    height={500}
+                                    rowCount={list.length}
+                                    rowHeight={20}
+                                    rowRenderer={
+                                        ({index, isScrolling})=>list[index]
+                                    }
+                                />
+                            )}
+                            </AutoSizer>
                     </div>
                 }
             </div>

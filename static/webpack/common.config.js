@@ -61,9 +61,12 @@ const common = {
     }, {
       test: /\.png$/,
       loader: 'file?name=[name].[ext]',
-    }, {
+    },{
       test: /\.jpg$/,
       loader: 'file?name=[name].[ext]',
+    },{
+        test: /\.css$/,
+        loaders: ['style', 'css?modules&importLoaders=1', 'postcss'],
     }],
   },
 
