@@ -4,7 +4,7 @@ from flask_socketio import emit
 
 from .utils.auth import generate_token, requires_auth, verify_token
 from .import models
-from .import app, db, socketio
+from .import app, db, sockets
 
 @app.route('/', methods=['GET'])
 def index():
@@ -106,3 +106,9 @@ def get_transactions():
         })
     return jsonify(result=serialized)
 
+@sockets.route('/')
+def echo_socket(ws):
+    print('connected to {:}'.format(ws))
+    while not ws.closed:
+        message = ws.receive()
+        print('got %s'%message)
