@@ -13,7 +13,6 @@ manager = Manager(app)
 # migrations
 manager.add_command('db', MigrateCommand)
 
-
 @manager.command
 def create_db():
     """Creates the db tables."""
@@ -36,6 +35,20 @@ def create_example_data():
             db.session.add(tr)
     db.session.commit()
 
+@manager.command
+def with_meinheld():
+    from meinheld import server, middleware
+    server.listen(("localhost", 5000))
+    server.run(middleware.WebSocketMiddleware(app))
+
+@manager.command
+def runserver():
+    from gevent import pywsgi
+    from geventwebsocket.handler import WebSocketHandler
+    # with WebSocketHandler debug doest work, maybe some solution from
+    # http://flask.pocoo.org/snippets/34/
+    server = pywsgi.WSGIServer(('localhost', 5000), app, handler_class=WebSocketHandler)
+    server.serve_forever()
 
 if __name__ == '__main__':
     manager.run()

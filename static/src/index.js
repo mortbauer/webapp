@@ -14,6 +14,8 @@ injectTapEventPlugin();
 const store = configureStore();
 const history = syncHistoryWithStore(browserHistory, store)
 
+var socket = new WebSocket("ws://localhost:5000")
+
 render(
     <MuiThemeProvider>
         <Root store={store} history={history}/>
