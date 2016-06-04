@@ -50,5 +50,15 @@ def runserver():
     server = pywsgi.WSGIServer(('localhost', 5000), app, handler_class=WebSocketHandler)
     server.serve_forever()
 
+@manager.command
+def build():
+    js_path = 'static/src/constants/index.js'
+    py_path = 'application/constants.py'
+    with open(js_path,'w') as js,open(py_path,'w') as py,open('constants.txt','r') as c:
+        for line in c:
+            constant = line.strip()
+            js.write('export const {0} = "{0}";\n'.format(constant))
+            py.write('{0} = "{0}"\n'.format(constant))
+
 if __name__ == '__main__':
     manager.run()
