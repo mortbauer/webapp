@@ -16,7 +16,7 @@ const debugMiddleware = [
     createLogger({
         collapsed: true
     })
-]
+];
 
 const enhancer = compose(
     applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient), ...debugMiddleware),
