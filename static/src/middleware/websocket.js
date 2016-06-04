@@ -36,7 +36,7 @@ export default class WSClient{
         try{
             var msg = JSON.parse(data);
             if (!!msg.action){
-                console.log('got message wich should be dispatched here');
+                console.log(`got action: ${msg.action} wich should be dispatched here`);
             } else {
                 console.log('got message without action');
             }

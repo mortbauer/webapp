@@ -1,8 +1,11 @@
+import json
+
 from flask import request, render_template, jsonify, url_for, redirect, g, Response
 from sqlalchemy.exc import IntegrityError
 
 from .utils.auth import generate_token, requires_auth, verify_token
 from .import models
+from .import constants
 from .import app, db, sockets
 
 @app.route('/', methods=['GET'])
@@ -105,10 +108,11 @@ def get_transactions():
         })
     return jsonify({'result':serialized})
 
+
 @sockets.route('/')
-def echo_socket(ws):
+def test_socket(ws):
     print('connected to {:}'.format(ws))
-    ws.send('hello from server')
+    ws.send(json.dumps({'action':constants.POST_TRANSACTION,'payload':['hello from server']}))
     while not ws.closed:
         message = ws.receive()
         print('got %s'%message)

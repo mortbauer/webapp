@@ -13,7 +13,7 @@ const axiosClient = axios.create({
     responseType: 'json'
 });
 
-const wsclient = new WSClient('ws://localhost:8000');
+const wsclient = new WSClient('ws://localhost:5000');
 
 const debugMiddleware = [
     createLogger({
