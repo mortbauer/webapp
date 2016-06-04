@@ -42,13 +42,17 @@ def with_meinheld():
     server.run(middleware.WebSocketMiddleware(app))
 
 @manager.command
-def runserver():
-    from gevent import pywsgi
-    from geventwebsocket.handler import WebSocketHandler
+@manager.option('-n','--no-sockets', dest='no_sockets',help='do not run  under WebSocketMiddleware')
+def run(no_sockets=False):
     # with WebSocketHandler debug doest work, maybe some solution from
     # http://flask.pocoo.org/snippets/34/
-    server = pywsgi.WSGIServer(('localhost', 5000), app, handler_class=WebSocketHandler)
-    server.serve_forever()
+    if no_sockets:
+        app.run('localhost',5000)
+    else:
+        from gevent import pywsgi
+        from geventwebsocket.handler import WebSocketHandler
+        server = pywsgi.WSGIServer(('localhost', 5000), app, handler_class=WebSocketHandler)
+        server.serve_forever()
 
 @manager.command
 def build():
