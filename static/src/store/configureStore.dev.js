@@ -6,11 +6,14 @@ import createLogger from 'redux-logger';
 import { persistState} from 'redux-devtools';
 import axios from 'axios';
 import axiosMiddleware from 'redux-axios-middleware';
+import WSClient from '../middleware/websocket';
 
 const axiosClient = axios.create({
     baseURL: 'api',
     responseType: 'json'
 });
+
+const wsclient = new WSClient('ws://localhost:8000');
 
 const debugMiddleware = [
     createLogger({
@@ -18,8 +21,9 @@ const debugMiddleware = [
     })
 ];
 
+    //applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient), ...debugMiddleware),
 const enhancer = compose(
-    applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient), ...debugMiddleware),
+    applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient),wsclient.middleware),
     DevTools.instrument(),
     persistState(
       window.location.href.match(/[?&]debug_session=([^&]+)\b/)
