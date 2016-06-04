@@ -1,6 +1,5 @@
-from flask import request, render_template, jsonify, url_for, redirect, g
+from flask import request, render_template, jsonify, url_for, redirect, g, Response
 from sqlalchemy.exc import IntegrityError
-from flask_socketio import emit
 
 from .utils.auth import generate_token, requires_auth, verify_token
 from .import models
@@ -29,14 +28,14 @@ def get_users():
     return jsonify(result=[{'id':x.id,'email':x.email} for x in users])
 
 
-@app.route("/api/usermeta/<int:user_id>", methods=["GET"])
+@app.route("/api/user/<int:user_id>", methods=["GET"])
 @requires_auth
 def get_usermeta(user_id):
     user = models.User.query.filter_by(id=user_id).first()
     return jsonify(result={'username':user.username,'surname':user.surname})
 
 
-@app.route("/api/usermeta/<int:user_id>", methods=["PUT"])
+@app.route("/api/user/<int:user_id>", methods=["PUT"])
 @requires_auth
 def set_usermeta(user_id):
     incoming = request.get_json()
@@ -47,7 +46,7 @@ def set_usermeta(user_id):
     return jsonify({'msg':'updated usermeta %s'%user_id})
 
 
-@app.route("/api/create_user", methods=["POST"])
+@app.route("/api/user", methods=["POST"])
 def create_user():
     incoming = request.get_json()
     if incoming and 'email' in incoming and 'password' in incoming:
@@ -104,11 +103,12 @@ def get_transactions():
             'comment':tr.comment,
             'transaction_number':tr.transaction_number,
         })
-    return jsonify(result=serialized)
+    return jsonify({'result':serialized})
 
 @sockets.route('/')
 def echo_socket(ws):
     print('connected to {:}'.format(ws))
+    ws.send('hello from server')
     while not ws.closed:
         message = ws.receive()
         print('got %s'%message)

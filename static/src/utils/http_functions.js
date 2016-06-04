@@ -22,7 +22,7 @@ export function get_github_access() {
 }
 
 export function create_user(email, password) {
-    return axios.post('api/create_user', {
+    return axios.post('api/user', {
         email: email,
         password: password
     })
@@ -33,10 +33,6 @@ export function get_token(email, password) {
         email: email,
         password: password
     })
-}
-
-export function has_github_token(token) {
-    return axios.get('api/has_github_token', tokenConfig(token))
 }
 
 export function get_transactions(token) {
