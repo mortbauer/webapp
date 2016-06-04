@@ -33,8 +33,7 @@ export default class ProtectedView extends React.Component {
     fetchData() {
         let token = this.props.token;
         var user_id = this.props.user_id;
-        console.log(`api/usermeta/${user_id}`);
-        this.props.fetchProtectedData(token,`api/usermeta/${user_id}`);
+        this.props.fetchProtectedData(token,`api/user/${user_id}`);
     }
 
     render() {
