@@ -3,14 +3,13 @@ import os
 import geventwebsocket
 from geventwebsocket.server import WebSocketServer
 
-
-
 def echo_app(environ, start_response):
     websocket = environ.get("wsgi.websocket")
-    print('hello :)')
+    print('hello :)',websocket)
     if websocket is None:
         return http_handler(environ, start_response)
     try:
+        websocket.send('hello you cool fool')
         while True:
             message = websocket.receive()
             print('got %s'%message)
