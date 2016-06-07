@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .utils.auth import generate_token, requires_auth, verify_token
 from .import models
+from .schemas import UserSchema, GroupSchema
 from .import constants
 from .import app, db, sockets
 
@@ -28,7 +29,9 @@ def get_current_user():
 @requires_auth
 def get_users():
     users = models.User.query.filter().all()
-    return jsonify(result=[{'id':x.id,'email':x.email} for x in users])
+    schema = UserSchema(many=True)
+    result = schema.dump(users)
+    return jsonify(result=result.data)
 
 
 @app.route("/api/user/<int:user_id>", methods=["GET"])
