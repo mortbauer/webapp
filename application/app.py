@@ -9,6 +9,9 @@ from .schemas import UserSchema, GroupSchema
 from .import constants
 from .import app, db, sockets
 
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
+
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
@@ -29,16 +32,16 @@ def get_current_user():
 @requires_auth
 def get_users():
     users = models.User.query.filter().all()
-    schema = UserSchema(many=True)
-    result = schema.dump(users)
+    result = users_schema.dump(users)
     return jsonify(result=result.data)
 
 
 @app.route("/api/user/<int:user_id>", methods=["GET"])
 @requires_auth
-def get_usermeta(user_id):
+def get_user(user_id):
     user = models.User.query.filter_by(id=user_id).first()
-    return jsonify(result={'username':user.username,'surname':user.surname})
+    result = user_schema.dump(user)
+    return jsonify(result=result.data)
 
 
 @app.route("/api/user/<int:user_id>", methods=["PUT"])
