@@ -1,8 +1,8 @@
-import {FETCH_TRANSACTIONS} from '../constants/index'
+import {TRANSACTIONS_GET} from '../constants/index'
 
 export function loadTransactions(token){
     return {
-        type: FETCH_TRANSACTIONS,
+        type: TRANSACTIONS_GET,
         payload: {
             request: {
                 url: '/transactions',

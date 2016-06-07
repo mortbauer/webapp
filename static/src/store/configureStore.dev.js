@@ -37,6 +37,8 @@ export default function configureStore(initialState) {
         enhancer,
     );
 
+    wsclient.setStore(store);
+
     if (module.hot) {
         // Enable Webpack hot module replacement for reducers
         module.hot.accept('../reducers', () => {

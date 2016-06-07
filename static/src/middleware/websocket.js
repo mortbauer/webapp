@@ -7,6 +7,7 @@ export default class WSClient{
         this.reconnectAttempts = 0;
         this.connect();
         this.connected = false;
+        this.store = null;
     };
     connect(){
         console.log(`connecting to: ${this.url}`);
@@ -23,6 +24,7 @@ export default class WSClient{
 
         this.websocket.onopen = (event) => {
             console.log('websocket open');
+            this.websocket.send('im ready now');
             this.reconnectAttempts = 0;
         }
 
@@ -35,13 +37,21 @@ export default class WSClient{
     handleIncomming(data){
         try{
             var msg = JSON.parse(data);
+        }catch(err){
+            console.log(`could not parse to json ${data}`);
+        }
+        if (!!msg){
             if (!!msg.action){
-                console.log(`got action: ${msg.action} wich should be dispatched here`);
+                if (!!this.store){ 
+                    //validate that propper action
+                    console.log(`${Date.now()} dispatching action ${msg.action.type}`);
+                    this.store.dispatch(msg.action);
+                }else{
+                    console.log(`${Date.now()} got action: ${msg.action.type} wich should be dispatched here, but no reference to store`);
+                }
             } else {
                 console.log('got message without action');
             }
-        }catch(err){
-            console.log('could not parse to json');
         }
     }
 
@@ -50,11 +60,15 @@ export default class WSClient{
         console.log(`try to reconnect in: ${timeout}`);
         setTimeout(()=>this.connect(),timeout);
         this.reconnectAttempts ++;
-    };
+    }
+
+    setStore(store){ 
+        this.store = store;
+    }
 
     middleware(store) {
         return next => action => {
-            console.log(`forwarding action: ${action}`);
+            console.log(`forwarding action: ${action.type}`);
             return next(action);
         }
     }

@@ -112,7 +112,24 @@ def get_transactions():
 @sockets.route('/')
 def test_socket(ws):
     print('connected to {:}'.format(ws))
-    ws.send(json.dumps({'action':constants.POST_TRANSACTION,'payload':['hello from server']}))
+    tr = {
+            'id':1,
+            'amount':1,
+            'bic_blz':1,
+            'iban_knr':1,
+            'our_iban':1,
+            'date':1,
+            'comment':'heeeello',
+            'transaction_number':1,
+        }
+    #ws.send(json.dumps({'action':{'type':constants.PUT_TRANSACTION,'payload':tr}}))
+    i = 0
+    payload = {'action':{'type':constants.TRANSACTIONS_PUT,'payload':tr}}
     while not ws.closed:
         message = ws.receive()
         print('got %s'%message)
+        if i == 0:
+            msg = json.dumps(payload)
+            print('sending: %s'%msg)
+            ws.send(msg)
+            i += 1
