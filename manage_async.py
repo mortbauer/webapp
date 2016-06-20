@@ -11,31 +11,17 @@ def run():
 
 @run.command()
 @click.option('-a','--with-aiohttp',is_flag=True)
-def run(with_aiohttp):
+@click.option('-d','--debug',is_flag=True)
+def run(with_aiohttp,debug):
     if with_aiohttp:
+        import asyncio
         from aiohttp import web
-        from app_async import make_app
-        web.run_app(make_app(),port=8000)
+        from app import config
+        from app.app import make_app
+        loop = asyncio.get_event_loop()
+        web.run_app(make_app(loop,config),port=8000)
     else:
-        subprocess.call(['gunicorn','-b','0.0.0.0:8000','-k','aiohttp.worker.GunicornWebWorker','--reload','-w','1','-t','60','thisapp:app','--log-level','DEBUG'])
-
-def ma():
-    loop = asyncio.get_event_loop()
-    the_app = app(loop)
-    handler = the_app.make_handler()
-    f = loop.create_server(handler, '0.0.0.0', 8000)
-    srv = loop.run_until_complete(f)
-    print('serving on', srv.sockets[0].getsockname())
-    try:
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        srv.close()
-        loop.run_until_complete(srv.wait_closed())
-        loop.run_until_complete(handler.finish_connections(1.0))
-        loop.run_until_complete(the_app.finish())
-        loop.close()
+        subprocess.call(['gunicorn','-b','0.0.0.0:8000','-k','aiohttp.worker.GunicornWebWorker','--reload','-w','1','-t','60','app:app','--log-level','DEBUG'])
 
 if __name__ == '__main__':
     run()
