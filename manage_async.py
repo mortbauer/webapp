@@ -2,8 +2,7 @@ import click
 import logging
 import subprocess
 
-
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 @click.group()
 def run():
