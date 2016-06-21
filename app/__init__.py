@@ -12,6 +12,7 @@ else:
 
 loop = asyncio.get_event_loop()
 app = web.Application()
+
 if config.TESTING:
     from . import views_sync as views
     from sqlalchemy import create_engine

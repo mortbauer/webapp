@@ -6,8 +6,8 @@ user = sa.Table(
     'user',
     metadata,
     sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('username',sa.String(255), unique=True, nullable=False),
     sa.Column('email', sa.Unicode(255), unique=True, nullable=False),
+    sa.Column('username',sa.String(255), unique=True),
     sa.Column('password', sa.Unicode(255), nullable=False),
     sa.Column('name',sa.String(255)),
     sa.Column('surname',sa.String(255)),
@@ -21,8 +21,8 @@ group = sa.Table(
     sa.Column('name',sa.String(255),unique=True, nullable=False),
 )
 
-transactions = sa.Table(
-    'transactions',
+transaction = sa.Table(
+    'transaction',
     metadata,
     sa.Column('id', sa.Integer, primary_key=True),
     sa.Column('our_iban',sa.String(255), nullable=False),

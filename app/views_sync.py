@@ -2,6 +2,7 @@ import json
 from aiohttp import web
 
 from . import models
+from .utils import DateTimeAwareJSONEncoder
 
 async def users_get(request):
     users = []
@@ -15,8 +16,8 @@ async def users_get(request):
 async def transactions_get(request):
     transactions = []
     with request.app['engine'].begin() as conn:
-        for row in conn.execute(models.transactions.select()):
+        for row in conn.execute(models.transaction.select()):
             transactions.append(dict(row))
-    data = json.dumps(users).encode('utf-8')
+    data = json.dumps(transactions,cls=DateTimeAwareJSONEncoder).encode('utf-8')
     return web.Response(body=data, content_type='application/json')
 
