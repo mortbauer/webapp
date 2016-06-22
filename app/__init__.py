@@ -2,6 +2,8 @@ import os
 
 import asyncio
 from aiohttp import web
+from aiohttp_index import IndexMiddleware
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 if os.environ.get('PRODUCTION'):
     from .settings import ProductionConfig
@@ -11,7 +13,7 @@ else:
     config = TestingConfig()
 
 loop = asyncio.get_event_loop()
-app = web.Application()
+app = web.Application(middlewares=[IndexMiddleware()])
 
 if config.TESTING:
     from . import views_sync as views
@@ -26,3 +28,4 @@ users_resource = app.router.add_resource('/users', name='users')
 users_resource.add_route('GET',views.users_get)
 transactions_resource = app.router.add_resource('/transactions', name='transactions')
 transactions_resource.add_route('GET',views.transactions_get)
+app.router.add_static('/',path=os.path.join(basedir,'../static'))
