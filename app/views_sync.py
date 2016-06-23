@@ -11,9 +11,9 @@ async def get_token(request):
     if incoming and 'email' in incoming and 'password' in incoming:
         with request.app['engine'].begin() as conn:
             user = conn.execute(models.user.select(models.user.c.email==incoming['email'])).first()
-        if user and auth.check_password(incoming['password'],user['password']):
+        if user and request.app['bcrypt'].check_password(incoming['password'],user['password']):
             data = {'token':auth.generate_token(user,request.app['SECRET_KEY'])}
-            return json_response(body=json.dumps(data).encode('utf-8'))
+            return json_response(data)
         else:
             return web.HTTPForbidden()
     else:
