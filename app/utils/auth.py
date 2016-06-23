@@ -11,8 +11,10 @@ TWO_WEEKS = 1209600
 FIVE_SECOND = 5
 
 class Bcrypt:
-    def __init__(self,prefix):
-        self.prefix = prefix
+
+    def __init__(self,prefix=b'2b',log_rounds=12):
+        self._log_rounds = log_rounds
+        self._prefix = prefix
 
     def hashed_password(self,password):
         if not password:
@@ -20,14 +22,16 @@ class Bcrypt:
         if isinstance(password,str):
             password = bytes(password,'utf-8')
 
-        return bcrypt.generate_password_hash(password)
+        salt = bcrypt.gensalt(rounds=self._log_rounds, prefix=self._prefix)
+        return bcrypt.hashpw(password,salt)
 
-    def check_password(password,hashed_password):
+    def check_password(self,password,hashed_password):
         if isinstance(password,str):
             password = bytes(password,'utf-8')
         if isinstance(hashed_password,str):
             hashed_password = bytes(hashed_password,'utf-8')
         return safe_str_cmp(hashed_password, bcrypt.hashpw(password,hashed_password))
+
 
 def generate_token(user,secret_key, expiration=TWO_WEEKS):
     s = Serializer(secret_key, expires_in=expiration)

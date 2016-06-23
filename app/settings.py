@@ -4,7 +4,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class BaseConfig(object):
     TESTING = False
-    SECRET_KEY = "SO_SECURE"
+    SECRET_KEY = 'SO_SECURE'
+    BCRYPT_HASH_PREFIX = b'2b'
+    BCRYPT_LOG_ROUNDS = 12
 
 class TestingConfig(BaseConfig):
     """Development configuration."""

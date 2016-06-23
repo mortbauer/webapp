@@ -6,16 +6,15 @@ from datetime import datetime
 
 from app import app
 
-#logging.basicConfig(level=logging.DEBUG)
-
 @click.group()
 def run():
     pass
 
 @run.command()
-@click.option('-a','--with-aiohttp',is_flag=True)
-def runserver(with_aiohttp):
-    if with_aiohttp:
+@click.option('-g','--with-gunicorn',is_flag=True)
+def runserver(with_gunicorn):
+    if not with_gunicorn:
+        logging.basicConfig(level=logging.DEBUG)
         import asyncio
         from aiohttp import web
         web.run_app(app,port=8000)
