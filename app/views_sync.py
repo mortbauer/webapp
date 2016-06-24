@@ -3,30 +3,37 @@ from aiohttp import web
 
 from . import models
 from .utils.serialize import json_response, dump_datetime
-from .utils import auth
 
 
 async def get_token(request):
+    """ generate the jwt token
+
+    query the db for the user with the specified email address, if found it
+    will check if the password is correct and create a jwt token
+
+    """
     incoming = await request.json()
     if incoming and 'email' in incoming and 'password' in incoming:
         with request.app['engine'].begin() as conn:
-            user = conn.execute(models.user.select(models.user.c.email==incoming['email'])).first()
-        if user and request.app['bcrypt'].check_password(incoming['password'],user['password']):
-            data = {'token':auth.generate_token(user,request.app['SECRET_KEY'])}
+            user = conn.execute(models.user.select(
+                models.user.c.email==incoming['email'])).first()
+        if user and request.app['bcrypt'].check_password(
+            incoming['password'],user['password']):
+            data = {'token':request.app['auth'].generate_token(user)}
             return json_response(data)
         else:
             return web.HTTPForbidden()
     else:
-        print(incoming)
         return web.HTTPBadRequest()
 
 async def users_get(request):
     users = []
     with request.app['engine'].begin() as conn:
         for row in conn.execute(models.user.select()):
-            user = {key:value for key,value in row.items() if key != 'password'}
+            user = dict(row)
+            user.pop('password')
             users.append(user)
-    return json_response(body=json.dumps(users).encode('utf-8'))
+    return json_response(users)
 
 async def users_post(request):
     incoming = request.json()

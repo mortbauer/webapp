@@ -4,7 +4,7 @@ import logging
 import subprocess
 from datetime import datetime
 
-from app import app
+from app.app import app
 
 @click.group()
 def run():
@@ -19,7 +19,10 @@ def runserver(with_gunicorn):
         from aiohttp import web
         web.run_app(app,port=8000)
     else:
-        subprocess.call(['gunicorn','-b','0.0.0.0:8000','-k','aiohttp.worker.GunicornWebWorker','--reload','-w','1','-t','60','app:app','--log-level','DEBUG'])
+        subprocess.call([
+            'gunicorn','-b','0.0.0.0:8000','-k','aiohttp.worker.GunicornWebWorker',
+            '--reload','-w','1','-t','60','app.app:app','--log-level','DEBUG',
+        ])
 
 @run.command()
 def create_example_data():
