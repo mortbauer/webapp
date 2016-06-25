@@ -1,8 +1,11 @@
 import json
 from aiohttp import web
+from cerberus import Validator
+from sqlalchemy.exc import IntegrityError
 
+from . import schemas
 from . import models
-from .utils.serialize import json_response, dump_datetime
+from .utils.serialize import jsonify, dump_datetime
 
 
 async def get_token(request):
@@ -20,7 +23,7 @@ async def get_token(request):
         if user and request.app['bcrypt'].check_password(
             incoming['password'],user['password']):
             data = {'token':request.app['auth'].generate_token(user)}
-            return json_response(data)
+            return jsonify(web.Response,data)
         else:
             return web.HTTPForbidden()
     else:
@@ -36,19 +39,30 @@ async def users_get(request):
     return json_response(users)
 
 async def users_post(request):
-    incoming = request.json()
-    if incoming and 'email' in incoming and 'password' in incoming:
-        ins = models.user.insert()
+    incoming = await request.json()
+    validator = Validator(schemas.user)
+    if validator.validate(incoming):
+        bcrypt = request.app['bcrypt']
+        incoming['password'] = bcrypt.hashed_password(incoming['password'])
+        ins = models.user.insert().values(incoming)
         with request.app['engine'].begin() as conn:
             try:
-                res = conn.execute(ins,[{'email':incoming['email'],'password':incoming['password']}])
-            except IntegrityError:
-                return jsonify(message="User with that email already exists"), 409
-        #return jsonify(id=user.id,token=generate_token(new_user))
-        user = {}
-        return json_response(body=json.dumps(user).encode('utf-8'))
+                res = conn.execute(ins)
+            except IntegrityError as e:
+                return jsonify(
+                    web.HTTPConflict,
+                    {'message':"User with that username already exists"},
+                )
+            query = models.user.select(
+                models.user.c.username==incoming['username'])
+            user = conn.execute(query).first()
+        data = {
+            'id':user.id,
+            'token':request.app['auth'].generate_token(user),
+        }
+        return jsonify(web.Response,data)
     else:
-        return web.HTTPBadRequest()
+        return jsonify(web.HTTPBadRequest,{'errors':validator.errors})
 
 async def transactions_get(request):
     transactions = []
@@ -59,4 +73,3 @@ async def transactions_get(request):
             transactions.append(d)
     data = json.dumps(transactions).encode('utf-8')
     return web.Response(body=data, content_type='application/json')
-

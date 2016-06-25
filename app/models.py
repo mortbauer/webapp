@@ -6,11 +6,11 @@ user = sa.Table(
     'user',
     metadata,
     sa.Column('id', sa.Integer, primary_key=True),
-    sa.Column('email', sa.Unicode(255), unique=True, nullable=False),
-    sa.Column('username',sa.String(255), unique=True),
-    sa.Column('password', sa.Unicode(255), nullable=False),
-    sa.Column('name',sa.String(255)),
-    sa.Column('surname',sa.String(255)),
+    sa.Column('email', sa.Unicode(320), nullable=False),
+    sa.Column('username',sa.String(64), unique=True, nullable=False),
+    sa.Column('password', sa.LargeBinary(60), nullable=False),
+    sa.Column('name',sa.String(64)),
+    sa.Column('surname',sa.String(64)),
     sa.Column('group_id',None,sa.ForeignKey('group.id')),
 )
 

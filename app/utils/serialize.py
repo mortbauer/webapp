@@ -9,5 +9,9 @@ def dump_datetime(datetime):
 def load_datetime(datetime):
     return iso8601.parse_date(datetime)
 
+def jsonify(resp,data):
+    body = json.dumps(data).encode('utf-8')
+    return resp(body=body,content_type='application/json')
+
 def json_response(data):
     return web.Response(body=json.dumps(data).encode('utf-8'),content_type='application/json')

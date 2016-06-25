@@ -17,7 +17,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 sys.path.insert(0,'.')
-import app
+from app.app import app
 from app import models
 target_metadata = models.metadata
 
@@ -25,7 +25,7 @@ target_metadata = models.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-config.set_main_option("sqlalchemy.url",app.config.DATABASE_URI)
+config.set_main_option("sqlalchemy.url",app['settings'].DATABASE_URI)
 
 
 def run_migrations_offline():
