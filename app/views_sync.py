@@ -8,6 +8,9 @@ from . import models
 from .utils.serialize import jsonify, dump_datetime
 
 
+# TODO also add a session cookie, since jwt token alone is vulnerable against
+# xss
+
 async def get_token(request):
     """ generate the jwt token
 
@@ -18,8 +21,9 @@ async def get_token(request):
     incoming = await request.json()
     if incoming and 'email' in incoming and 'password' in incoming:
         with request.app['engine'].begin() as conn:
-            user = conn.execute(models.user.select(
-                models.user.c.email==incoming['email'])).first()
+            query = models.user.select(
+                models.user.c.email==incoming['email'])
+            user = conn.execute(query).first()
         if user and request.app['bcrypt'].check_password(
             incoming['password'],user['password']):
             data = {'token':request.app['auth'].generate_token(user)}
@@ -29,6 +33,27 @@ async def get_token(request):
     else:
         return web.HTTPBadRequest()
 
+async def is_token_valid(request):
+    incoming = await request.json()
+    if incoming and 'token' in incoming:
+        try:
+            if request.app['auth'].verify_token(incoming['token']):
+                return jsonify(web.Response,{'token_is_valid':True})
+            else:
+                return jsonify(web.Response,{'token_is_valid':False})
+        except:
+            return web.HTTPBadRequest()
+    else:
+        return web.HTTPBadRequest()
+
+
+async def user_get(request):
+    with request.app['engine'].begin() as conn:
+        query = models.user.select(models.user.c.id==request.match_info['id'])
+        user = dict(conn.execute(query).first())
+        user.pop('password')
+    return jsonify(web.Response,{'result':user})
+
 async def users_get(request):
     users = []
     with request.app['engine'].begin() as conn:
@@ -36,7 +61,7 @@ async def users_get(request):
             user = dict(row)
             user.pop('password')
             users.append(user)
-    return json_response(users)
+    return jsonify(web.Response,users)
 
 async def users_post(request):
     incoming = await request.json()
@@ -71,5 +96,4 @@ async def transactions_get(request):
             d = dict(row)
             d['date'] = dump_datetime(d['date'])
             transactions.append(d)
-    data = json.dumps(transactions).encode('utf-8')
-    return web.Response(body=data, content_type='application/json')
+    return jsonify(web.Response,{'result':transactions})

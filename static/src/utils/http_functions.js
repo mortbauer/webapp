@@ -14,13 +14,6 @@ export function validate_token(token) {
     })
 }
 
-export function get_github_access() {
-    window.open(
-        '/github-login',
-        '_blank' // <- This is what makes it open in a new window.
-    );
-}
-
 export function create_user(email, password) {
     return axios.post('api/user', {
         email: email,

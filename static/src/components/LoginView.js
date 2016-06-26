@@ -1,10 +1,12 @@
 import React from 'react'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as actionCreators from '../actions/auth';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
+import Helmet from 'react-helmet';
+
+import * as actionCreators from '../actions/auth';
 import {validateEmail} from '../utils/misc'
 
 function mapStateToProps(state) {
@@ -115,6 +117,7 @@ export default class LoginView extends React.Component {
     render() {
         return (
             <div className='col-md-6 col-md-offset-3'>
+                <Helmet title='Login'/>
                 <Paper style={style}>
                     <form role='form' onSubmit={(e) => this.login(e)}>
                         <div className="text-center">

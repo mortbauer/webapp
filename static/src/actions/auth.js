@@ -11,8 +11,31 @@ import {
 import { parseJSON } from '../utils/misc';
 import { browserHistory } from 'react-router'
 import jwtDecode from 'jwt-decode';
-import { get_token, create_user } from '../utils/http_functions'
+import { get_token, create_user, validate_token} from '../utils/http_functions'
 
+
+export function validateAuth(token) {
+    return function (dispatch) {
+        dispatch(loginUserRequest());
+        return validate_token(token)
+            .then(parseJSON)
+            .then(response => {
+                if (response.token_is_valid){
+                    dispatch(loginUserSuccess(token));
+                } else {
+                    dispatch(loginUserFailure({
+                        response: {
+                            status: 403,
+                            statusText: 'Invalid token'
+                        }
+                    }));
+                }
+            })
+            .catch(error => {
+                dispatch(loginUserFailure(error));
+            })
+    }
+}
 
 export function loginUserSuccess(token) {
     localStorage.setItem('token', token);

@@ -6,7 +6,7 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
 
-import {validateEmail} from '../utils/misc'
+import {validateEmail, validateUsername, validatePassword} from '../utils/misc'
 
 function mapStateToProps(state) {
     return {
@@ -35,8 +35,10 @@ export default class RegisterView extends React.Component {
         super(props);
         const redirectRoute = '/login';
         this.state = {
+            username: '',
             email: '',
             password: '',
+            username_error_text: null,
             email_error_text: null,
             password_error_text: null,
             redirectTo: redirectRoute,
@@ -45,9 +47,31 @@ export default class RegisterView extends React.Component {
     }
 
     isDisabled() {
+        let username_is_valid = false;
         let email_is_valid = false;
         let password_is_valid = false;
 
+        // validate the username
+        if (this.state.username === "") {
+            this.setState({
+                username_error_text: null
+            })
+        } else {
+
+            if (validateUsername(this.state.username)) {
+                username_is_valid = true
+                this.setState({
+                    username_error_text: null
+                })
+
+            } else {
+                this.setState({
+                    username_error_text: "Sorry, this is not a valid username"
+                })
+            }
+        }
+
+        // validate the email
         if (this.state.email === "") {
             this.setState({
                 email_error_text: null
@@ -67,20 +91,20 @@ export default class RegisterView extends React.Component {
             }
         }
 
+        // validate the password
         if (this.state.password === "" || !this.state.password) {
             this.setState({
                 password_error_text: null
             })
         } else {
-
-            if (this.state.password.length >= 6) {
+            if (validatePassword(this.state.password.length)) {
                 password_is_valid = true;
                 this.setState({
                     password_error_text: null
                 })
             } else {
                 this.setState({
-                    password_error_text: "Your password must be at least 6 characters"
+                    password_error_text: "Your password must be at least 8 characters"
                 })
 
             }
@@ -103,7 +127,7 @@ export default class RegisterView extends React.Component {
         })
     }
 
-    login(e) {
+    register(e) {
         e.preventDefault();
         this.props.registerUser(
             this.state.email, 
@@ -116,7 +140,7 @@ export default class RegisterView extends React.Component {
         return (
             <div className='col-md-6 col-md-offset-3'>
                 <Paper style={style}>
-                    <form role='form' onSubmit={(e) => this.login(e)}>
+                    <form role='form' onSubmit={(e) => this.register(e)}>
                         <div className="text-center">
                             <h2>Register to view protected content!</h2>
                             {
@@ -125,6 +149,17 @@ export default class RegisterView extends React.Component {
                                     {this.props.statusText}
                                 </div>
                             }
+                            <div className="col-md-12">
+                                <TextField
+                                    name="username"
+                                    id="username"
+                                    type="username"
+                                    hintText="Username"
+                                    floatingLabelText="Username"
+                                    errorText={this.state.username_error_text}
+                                    onChange={(e) =>this.changeValue(e, 'username')}
+                                />
+                            </div>
                             <div className="col-md-12">
                                 <TextField
                                     name="email"

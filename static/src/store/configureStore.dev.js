@@ -13,7 +13,7 @@ const axiosClient = axios.create({
     responseType: 'json'
 });
 
-const wsclient = new WSClient('ws://localhost:5000');
+//const wsclient = new WSClient('ws://localhost:5000');
 
 const debugMiddleware = [
     createLogger({
@@ -23,7 +23,7 @@ const debugMiddleware = [
 
     //applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient), ...debugMiddleware),
 const enhancer = compose(
-    applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient),wsclient.middleware),
+    applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient)),//,wsclient.middleware),
     DevTools.instrument(),
     persistState(
       window.location.href.match(/[?&]debug_session=([^&]+)\b/)
@@ -37,7 +37,7 @@ export default function configureStore(initialState) {
         enhancer,
     );
 
-    wsclient.setStore(store);
+    //wsclient.setStore(store);
 
     if (module.hot) {
         // Enable Webpack hot module replacement for reducers
