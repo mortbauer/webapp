@@ -1,5 +1,6 @@
 import json
 from aiohttp import web
+from aiohttp import MsgType
 from cerberus import Validator
 from sqlalchemy.exc import IntegrityError
 
@@ -8,15 +9,16 @@ from . import models
 from .utils.serialize import jsonify, dump_datetime
 
 
-# TODO also add a session cookie, since jwt token alone is vulnerable against
-# xss
+"""
+TODO also add a session cookie, since jwt token alone is vulnerable against
+xss
+
+"""
 
 async def get_token(request):
     """ generate the jwt token
-
     query the db for the user with the specified email address, if found it
     will check if the password is correct and create a jwt token
-
     """
     incoming = await request.json()
     if incoming and 'email' in incoming and 'password' in incoming:
@@ -45,7 +47,6 @@ async def is_token_valid(request):
             return web.HTTPBadRequest()
     else:
         return web.HTTPBadRequest()
-
 
 async def user_get(request):
     with request.app['engine'].begin() as conn:
@@ -97,3 +98,20 @@ async def transactions_get(request):
             d['date'] = dump_datetime(d['date'])
             transactions.append(d)
     return jsonify(web.Response,{'result':transactions})
+
+async def websocket_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+    async for msg in ws:
+        if msg.tp == MsgType.text:
+            print('got msg: %s'%msg.data)
+            if msg.data == 'close':
+                await ws.close()
+            else:
+                ws.send_str(msg.data + '/answer')
+        elif msg.tp == MsgType.error:
+            print('ws connection closed with exception %s' % ws.exception())
+
+    print('websocket connection closed')
+
+    return ws

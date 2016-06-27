@@ -2,7 +2,6 @@ import os
 
 import asyncio
 from aiohttp import web
-from aiohttp_index import IndexMiddleware
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -28,7 +27,7 @@ else:
     engine = loop.run_until_complete(create_engine(config.DATABASE_URI, loop=loop))
     kwargs = {}
 
-app = web.Application(middlewares=[IndexMiddleware()],**kwargs)
+app = web.Application(middlewares=[],**kwargs)
 app['settings'] = config
 app['engine'] = engine
 app['bcrypt'] = auth.Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
@@ -46,4 +45,5 @@ transactions_resource.add_route('GET',views.transactions_get)
 
 app.router.add_route('POST','/api/get_token',views.get_token)
 app.router.add_route('POST','/api/is_token_valid',views.is_token_valid)
-app.router.add_static('/',path=os.path.join(basedir,'../static'))
+app.router.add_route('GET','/api/ws',views.websocket_handler)
+
