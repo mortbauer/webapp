@@ -2,6 +2,7 @@ import os
 
 import asyncio
 from aiohttp import web
+from . import middleware
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -27,11 +28,12 @@ else:
     engine = loop.run_until_complete(create_engine(config.DATABASE_URI, loop=loop))
     kwargs = {}
 
-app = web.Application(middlewares=[],**kwargs)
+app = web.Application(middlewares=[middleware.endpoint_protection],**kwargs)
 app['settings'] = config
 app['engine'] = engine
 app['bcrypt'] = auth.Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
 app['auth'] = auth.Auth(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
+app['acls'] = {}
 
 users_resource = app.router.add_resource('/api/users', name='users')
 users_resource.add_route('GET',views.users_get)
