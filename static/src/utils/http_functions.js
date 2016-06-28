@@ -3,7 +3,7 @@ import axios from 'axios';
 const tokenConfig = function (token) {
     return {
         headers: {
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
         }
     }
 };

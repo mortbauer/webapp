@@ -32,6 +32,7 @@ app['settings'] = config
 app['engine'] = engine
 app['bcrypt'] = auth.Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
 app['auth'] = auth.Auth(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
+app['session'] = {} # for now dict, later user redis
 
 users_resource = app.router.add_resource('/api/users', name='users')
 users_resource.add_route('GET',views.users_get)
