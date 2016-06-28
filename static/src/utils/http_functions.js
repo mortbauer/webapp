@@ -3,7 +3,7 @@ import axios from 'axios';
 const tokenConfig = function (token) {
     return {
         headers: {
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
         }
     }
 };
@@ -14,8 +14,9 @@ export function validate_token(token) {
     })
 }
 
-export function create_user(email, password) {
-    return axios.post('api/user', {
+export function create_user(username, email, password) {
+    return axios.post('api/users', {
+        username: username,
         email: email,
         password: password
     })

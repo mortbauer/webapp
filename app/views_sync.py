@@ -91,6 +91,7 @@ async def users_post(request):
         return jsonify(web.HTTPBadRequest,{'errors':validator.errors})
 
 async def transactions_get(request):
+    print(request.headers)
     transactions = []
     with request.app['engine'].begin() as conn:
         for row in conn.execute(models.transaction.select()):
