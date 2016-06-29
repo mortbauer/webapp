@@ -50,3 +50,4 @@ app.router.add_route('POST','/api/get_token',views.get_token)
 app.router.add_route('POST','/api/is_token_valid',views.is_token_valid)
 app.router.add_route('GET','/api/ws',views.websocket_handler)
 
+# use package alcohol as inspiration for simple rbac
