@@ -9,6 +9,8 @@ class BaseConfig(object):
     SECRET_KEY = 'SO_SECURE'
     BCRYPT_HASH_PREFIX = b'2b'
     BCRYPT_LOG_ROUNDS = 12
+    REDIS_HOST = 'localhost'
+    REDIS_PORT = 6379
 
 class TestingConfig(BaseConfig):
     """Development configuration."""

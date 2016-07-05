@@ -1,12 +1,12 @@
 import os
 
 import asyncio
+import aioredis
 from aiohttp import web
 from . import middleware
+from .auth import Authorization, Authenticate, Bcrypt
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-
-from .utils import auth
 
 if os.environ.get('PRODUCTION'):
     from .settings import ProductionConfig
@@ -15,6 +15,7 @@ else:
     from .settings import TestingConfig
     config = TestingConfig()
 
+loop = asyncio.get_event_loop()
 
 if config.TESTING:
     from . import views_sync as views
@@ -24,15 +25,18 @@ if config.TESTING:
 else:
     from . import views
     from aiopg.sa import create_engine
-    loop = asyncio.get_event_loop()
     engine = loop.run_until_complete(create_engine(config.DATABASE_URI, loop=loop))
     kwargs = {}
 
+redis_pool = loop.run_until_complete(aioredis.create_pool(
+    (config.REDIS_HOST,config.REDIS_PORT)))
+
+auth = Authorization(redis_pool)
 app = web.Application(middlewares=[middleware.endpoint_protection],**kwargs)
 app['settings'] = config
 app['engine'] = engine
-app['bcrypt'] = auth.Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
-app['auth'] = auth.Auth(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
+app['bcrypt'] = Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
+app['auth'] = Authenticate(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
 app['acls'] = {}
 app['session'] = {} # for now dict, later user redis
 

@@ -5,7 +5,8 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired, BadSignature
 from werkzeug.security import safe_str_cmp
 
-from . import serialize
+from .utils import serialize
+from . import models
 
 
 class Bcrypt:
@@ -34,8 +35,7 @@ class Bcrypt:
         return safe_str_cmp(hashed_password, bcrypt.hashpw(password,hashed_password))
 
 
-class Auth:
-
+class Authenticate:
     def __init__(self,secret_key,expiration):
         self._secret_key = secret_key
         self._expiration = expiration
@@ -56,6 +56,48 @@ class Auth:
             return None
         return data
 
+class Authorization:
+    def __init__(self,redis_pool):
+        self.pool = redis_pool
+
+    async def get_user_roles(self,user_id):
+        key = 'user_roles::%s'%user_id
+        with await self.pool as redis:
+            return await redis.smembers(key)
+
+    async def set_user_roles(self,user_id,roles):
+        key = 'user_roles::%s'%user_id
+        with await self.pool as redis:
+            await redis.delete(key)
+            await redis.sadd(key,*roles)
+
+    async def get_role_permissions(self,role):
+        key = 'role_permissions::%s'%role
+        with await self.pool as redis:
+            return await redis.smembers(key)
+
+    async def set_role_permissions(self,role,permissions):
+        key = 'role_permissions::%s'%role
+        with await self.pool as redis:
+            await redis.delete(key)
+            await redis.sadd(key,*permissions)
+
+    async def has_session_permission(self,token,permission):
+        with await self.pool as redis:
+            return await redis.sismember('session_permissions::%s'%token,permission)
+
+    async def get_session_permissions(self,token):
+        key = 'session_roles::%s'%token
+        with await self.pool as redis:
+            return await redis.smembers('session_permissions::%s'%token)
+
+    async def set_session_permissions(self,token,roles):
+        key = 'session_permissions::%s'%token
+        with await self.pool as redis:
+            await redis.delete(key)
+            keys = ['role_permissions::%s'%x for x in roles]
+            await redis.sunionstore(key,*keys)
+
 
 def requires_auth(f):
     bad = json.dumps({'message':"Authentication is required to access this resource"})
@@ -72,4 +114,5 @@ def requires_auth(f):
         return web.HTTPUnauthorized(body=bad)
 
     return decorated
+
 
