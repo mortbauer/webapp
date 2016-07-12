@@ -28,11 +28,15 @@ def runserver(with_gunicorn):
 def create_example_data():
     from app import models
     import requests
-    with open('users.json','r') as f:
-        ins = models.user.insert()
-        data = json.loads(f.read())
-        for user in data:
-            requests.post('http://localhost:5000/api/users',json=user)
+    with app['engine'].begin() as conn:
+        with open('users.json','r') as f:
+            ins = models.user.insert()
+            users = []
+            for data in json.loads(f.read()):
+                data['password'] = app['bcrypt'].hashed_password(data['password'])
+                users.append(data)
+            conn.execute(ins,users)
+
     with app['engine'].begin() as conn:
         with open('transaction.json','r') as f:
             ins = models.transaction.insert()

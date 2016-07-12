@@ -32,7 +32,8 @@ class Bcrypt:
             password = bytes(password,'utf-8')
         if isinstance(hashed_password,str):
             hashed_password = bytes(hashed_password,'utf-8')
-        return safe_str_cmp(hashed_password, bcrypt.hashpw(password,hashed_password))
+        return safe_str_cmp(
+                hashed_password, bcrypt.hashpw(password,hashed_password))
 
 
 class Authenticate:
@@ -84,7 +85,8 @@ class Authorization:
 
     async def has_session_permission(self,token,permission):
         with await self.pool as redis:
-            return await redis.sismember('session_permissions::%s'%token,permission)
+            return await redis.sismember(
+                    'session_permissions::%s'%token,permission)
 
     async def get_session_permissions(self,token):
         key = 'session_roles::%s'%token
@@ -97,6 +99,26 @@ class Authorization:
             await redis.delete(key)
             keys = ['role_permissions::%s'%x for x in roles]
             await redis.sunionstore(key,*keys)
+
+    async def middleware(self,app, handler):
+        async def middleware_handler(request):
+            allowed = False
+            print(request.match_info.route)
+            acls = app['acls'].get((request.path,request.method),[])
+            if 'public' in acls:
+                allowed = True
+            elif 'Authorization' in request.headers:
+                auth = request.headers['Authorization']
+                if auth.startswith('Bearer '):
+                    token = auth[7:]
+                    string_token = token.encode('ascii', 'ignore')
+                    user = verify_token(string_token,app['SECRET_KEY'])
+                    if 
+            if not allowed:
+                return web.HTTPForbidden()
+            else:
+                return await handler(request)
+        return middleware_handler
 
 
 def requires_auth(f):

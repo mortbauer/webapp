@@ -32,12 +32,17 @@ redis_pool = loop.run_until_complete(aioredis.create_pool(
     (config.REDIS_HOST,config.REDIS_PORT)))
 
 auth = Authorization(redis_pool)
-app = web.Application(middlewares=[middleware.endpoint_protection],**kwargs)
+app = web.Application(middlewares=[auth.middleware],**kwargs)
 app['settings'] = config
 app['engine'] = engine
 app['bcrypt'] = Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
-app['auth'] = Authenticate(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
-app['acls'] = {}
+app['authenticate'] = Authenticate(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
+app['acls'] = {
+        ('/api/user/{id}','GET'):{'owner'},
+        ('/api/users','POST'):{'public'},
+        ('/api/get_token','POST'):{'public'},
+        ('/api/is_token_valid','POST'):{'public'},
+    }
 app['session'] = {} # for now dict, later user redis
 
 users_resource = app.router.add_resource('/api/users', name='users')
@@ -53,5 +58,6 @@ transactions_resource.add_route('GET',views.transactions_get)
 app.router.add_route('POST','/api/get_token',views.get_token)
 app.router.add_route('POST','/api/is_token_valid',views.is_token_valid)
 app.router.add_route('GET','/api/ws',views.websocket_handler)
+
 
 # use package alcohol as inspiration for simple rbac
