@@ -8,7 +8,6 @@ from werkzeug.security import safe_str_cmp
 from .utils import serialize
 from . import models
 
-
 class Bcrypt:
     """ add bcrypt to your app
 
@@ -35,7 +34,7 @@ class Bcrypt:
         return safe_str_cmp(
                 hashed_password, bcrypt.hashpw(password,hashed_password))
 
-class Authenticate:
+class Authentication:
     def __init__(self,secret_key,expiration):
         self._secret_key = secret_key
         self._expiration = expiration
@@ -64,7 +63,9 @@ class Authorization:
     async def get_user_roles(self,user_id):
         key = 'user_roles::%s'%user_id
         with await self.pool as redis:
-            return await redis.smembers(key)
+            roles = set(await redis.smembers(key))
+            roles.add('user')
+        return roles
 
     async def set_user_roles(self,user_id,roles):
         key = 'user_roles::%s'%user_id
@@ -75,7 +76,7 @@ class Authorization:
     async def get_role_permissions(self,role):
         key = 'role_permissions::%s'%role
         with await self.pool as redis:
-            return await redis.smembers(key)
+            return set(await redis.smembers(key))
 
     async def set_role_permissions(self,role,permissions):
         key = 'role_permissions::%s'%role
@@ -91,13 +92,13 @@ class Authorization:
     async def get_session_permissions(self,token):
         key = 'session_roles::%s'%token
         with await self.pool as redis:
-            return await redis.smembers('session_permissions::%s'%token)
+            return await set(redis.smembers('session_permissions::%s'%token))
 
     async def verify_token(self,token):
         is_correct = False
         user = self.authenticater.data_from_token(token)
-        if user is not None
-            key = 'session_roles::%s'%token
+        if user is not None:
+            key = 'session_permissions::%s'%token
             with await self.pool as redis:
                 if await redis.exists(key):
                     is_correct = True
@@ -106,11 +107,13 @@ class Authorization:
     async def add_user_to_session(self,user):
         token = self.authenticater.generate_token(user)
         key = 'session_permissions::%s'%token
-        roles = self.get_user_roles(user)
+        roles = await self.get_user_roles(user)
         with await self.pool as redis:
             await redis.delete(key)
             keys = ['role_permissions::%s'%x for x in roles]
-            await redis.sunionstore(key,*keys)
+            await redis.sunionstore(key,keys[0],*keys[1:])
+            # expire in 60 seconds
+            await redis.expire(key,60)
         return token
 
     async def set_session_permissions(self,token,roles):
@@ -123,39 +126,16 @@ class Authorization:
     async def middleware(self,app, handler):
         async def middleware_handler(request):
             allowed = False
-            print(request.match_info.route)
             acls = app['acls'].get((request.path,request.method),[])
             if 'public' in acls:
                 allowed = True
             elif 'Authorization' in request.headers:
                 auth = request.headers['Authorization']
                 if auth.startswith('Bearer '):
-                    token = auth[7:]
-                    string_token = token.encode('ascii', 'ignore')
-                    user = verify_token(string_token,app['SECRET_KEY'])
-                    if user is not None and token in app['session']:
-
+                    if await self.verify_token(auth[7:]):
+                        allowed = True
             if not allowed:
                 return web.HTTPForbidden()
             else:
                 return await handler(request)
         return middleware_handler
-
-
-def requires_auth(f):
-    bad = json.dumps({'message':"Authentication is required to access this resource"})
-    @wraps(f)
-    def decorated(request):
-        token = request.headers.get('Authorization', None)
-        if token:
-            string_token = token.encode('ascii', 'ignore')
-            user = verify_token(string_token,request.app['SECRET_KEY'])
-            if user:
-                request.current_user = user
-                return f(request)
-
-        return web.HTTPUnauthorized(body=bad)
-
-    return decorated
-
-
