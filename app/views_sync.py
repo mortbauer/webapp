@@ -28,8 +28,8 @@ async def get_token(request):
             user = conn.execute(query).first()
         if user and request.app['bcrypt'].check_password(
             incoming['password'],user['password']):
-            data = {'token':request.app['auth'].generate_token(user)}
-            return jsonify(web.Response,data)
+            token = await request.app['auth'].add_user_to_session(user)
+            return jsonify(web.Response,{'token':token})
         else:
             return web.HTTPForbidden()
     else:

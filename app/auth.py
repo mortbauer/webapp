@@ -35,7 +35,6 @@ class Bcrypt:
         return safe_str_cmp(
                 hashed_password, bcrypt.hashpw(password,hashed_password))
 
-
 class Authenticate:
     def __init__(self,secret_key,expiration):
         self._secret_key = secret_key
@@ -50,7 +49,7 @@ class Authenticate:
         }).decode('utf-8')
         return token
 
-    def verify_token(self,token):
+    def data_from_token(self,token):
         try:
             data = self._serializer.loads(token)
         except (BadSignature, SignatureExpired):
@@ -58,7 +57,8 @@ class Authenticate:
         return data
 
 class Authorization:
-    def __init__(self,redis_pool):
+    def __init__(self,redis_pool,authenticater):
+        self.authenticater = authenticater
         self.pool = redis_pool
 
     async def get_user_roles(self,user_id):
@@ -93,6 +93,26 @@ class Authorization:
         with await self.pool as redis:
             return await redis.smembers('session_permissions::%s'%token)
 
+    async def verify_token(self,token):
+        is_correct = False
+        user = self.authenticater.data_from_token(token)
+        if user is not None
+            key = 'session_roles::%s'%token
+            with await self.pool as redis:
+                if await redis.exists(key):
+                    is_correct = True
+        return is_correct
+
+    async def add_user_to_session(self,user):
+        token = self.authenticater.generate_token(user)
+        key = 'session_permissions::%s'%token
+        roles = self.get_user_roles(user)
+        with await self.pool as redis:
+            await redis.delete(key)
+            keys = ['role_permissions::%s'%x for x in roles]
+            await redis.sunionstore(key,*keys)
+        return token
+
     async def set_session_permissions(self,token,roles):
         key = 'session_permissions::%s'%token
         with await self.pool as redis:
@@ -113,7 +133,8 @@ class Authorization:
                     token = auth[7:]
                     string_token = token.encode('ascii', 'ignore')
                     user = verify_token(string_token,app['SECRET_KEY'])
-                    if 
+                    if user is not None and token in app['session']:
+
             if not allowed:
                 return web.HTTPForbidden()
             else:
