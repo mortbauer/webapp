@@ -39,7 +39,7 @@ async def is_token_valid(request):
     incoming = await request.json()
     if incoming and 'token' in incoming:
         try:
-            if request.app['auth'].verify_token(incoming['token']):
+            if await request.app['auth'].verify_token(incoming['token']):
                 return jsonify(web.Response,{'token_is_valid':True})
             else:
                 return jsonify(web.Response,{'token_is_valid':False})
@@ -91,7 +91,6 @@ async def users_post(request):
         return jsonify(web.HTTPBadRequest,{'errors':validator.errors})
 
 async def transactions_get(request):
-    print(request.headers)
     transactions = []
     with request.app['engine'].begin() as conn:
         for row in conn.execute(models.transaction.select()):

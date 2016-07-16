@@ -6,7 +6,7 @@ export function loadTransactions(token){
         payload: {
             request: {
                 url: '/transactions',
-                headers: {'Authorization':token}
+                headers: {'Authorization': `Bearer ${token}`}
             }
         }
     }
