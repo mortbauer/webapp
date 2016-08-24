@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 /* global styles for app */
+import './styles/fonts/roboto-regular/font.css';
 import './styles/app.scss';
 
 /* application components */
