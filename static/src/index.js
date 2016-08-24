@@ -7,7 +7,7 @@ import { syncHistoryWithStore } from 'react-router-redux'
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import 'style.scss';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import configureStore from './store/configureStore';
+import configureStore from './redux/configureStore';
 import Root from './containers/Root';
 import * as ActionTypes from './constants/index';
 

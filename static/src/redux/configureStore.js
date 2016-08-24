@@ -6,7 +6,7 @@ import createLogger from 'redux-logger';
 import { persistState} from 'redux-devtools';
 import axios from 'axios';
 import axiosMiddleware from 'redux-axios-middleware';
-import WSClient from '../middleware/websocket';
+import WSClient from './websocket';
 
 const axiosClient = axios.create({
     baseURL: 'http://localhost:5000/api',

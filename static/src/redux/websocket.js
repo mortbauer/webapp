@@ -47,7 +47,7 @@ export default class WSClient{
                     console.log(`${Date.now()} dispatching action ${msg.action.type}`);
                     this.store.dispatch(msg.action);
                 }else{
-                    console.log(`${Date.now()} got action: ${msg.action.type} wich should be dispatched here, but no reference to store`);
+                    console.log(`${Date.now()} got action: ${msg.action.type}, no reference to store`);
                 }
             } else {
                 console.log('got message without action');
