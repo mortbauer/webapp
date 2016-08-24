@@ -15,13 +15,6 @@ const axiosClient = axios.create({
 
 const wsclient = new WSClient('ws://localhost:5000/api/ws');
 
-const debugMiddleware = [
-    createLogger({
-        collapsed: true
-    })
-];
-
-    //applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient), ...debugMiddleware),
 const enhancer = compose(
     applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient),wsclient.middleware),
     DevTools.instrument(),
