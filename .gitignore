@@ -3,5 +3,8 @@
 *.pyc
 *.log
 venv
+venv35
 __pycache__
 htmlcov
+.ipynb_checkpoints
+

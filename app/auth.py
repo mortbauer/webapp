@@ -123,6 +123,7 @@ class Authorization:
             keys = ['role_permissions::%s'%x for x in roles]
             await redis.sunionstore(key,*keys)
 
+
     async def middleware(self,app, handler):
         async def middleware_handler(request):
             allowed = False
@@ -130,9 +131,10 @@ class Authorization:
             if 'public' in acls:
                 allowed = True
             elif 'Authorization' in request.headers:
-                auth = request.headers['Authorization']
-                if auth.startswith('Bearer '):
-                    if await self.verify_token(auth[7:]):
+                auth_header = request.headers['Authorization']
+                if auth_header.startswith('Bearer '):
+                    token = auth_header[7:]
+                    if await self.verify_token(token):
                         allowed = True
             if not allowed:
                 return web.HTTPForbidden()
