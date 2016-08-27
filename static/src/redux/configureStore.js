@@ -9,7 +9,7 @@ import axiosMiddleware from 'redux-axios-middleware';
 import WSClient from './websocket';
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: 'api',
     responseType: 'json'
 });
 
