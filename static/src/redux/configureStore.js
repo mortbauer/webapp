@@ -13,6 +13,7 @@ const axiosClient = axios.create({
     responseType: 'json'
 });
 
+//handling of ws and store should be just fine, see: http://stackoverflow.com/questions/31970675/where-do-long-running-processes-live-in-a-react-redux-application
 const wsclient = new WSClient('ws://localhost:5000/api/ws');
 
 const storeEnhancers = [
