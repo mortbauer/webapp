@@ -6,7 +6,8 @@ from aiohttp import web
 from . import middleware
 from .auth import Authorization, Authentication, Bcrypt
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = os.path.dirname(
+        os.path.abspath(os.path.dirname(__file__)))
 
 if os.environ.get('PRODUCTION'):
     from .settings import ProductionConfig
@@ -32,7 +33,7 @@ redis_pool = loop.run_until_complete(aioredis.create_pool(
     (config.REDIS_HOST,config.REDIS_PORT)))
 
 authenticater = Authentication(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
-authorizer = Authorization(redis_pool,authenticater)
+authorizer = Authorization(redis_pool,authenticater,devel=config.TESTING)
 
 app = web.Application(middlewares=[authorizer.middleware],**kwargs)
 

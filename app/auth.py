@@ -56,7 +56,8 @@ class Authentication:
         return data
 
 class Authorization:
-    def __init__(self,redis_pool,authenticater):
+    def __init__(self,redis_pool,authenticater,devel=False):
+        self.devel = devel
         self.authenticater = authenticater
         self.pool = redis_pool
 
@@ -123,8 +124,9 @@ class Authorization:
             keys = ['role_permissions::%s'%x for x in roles]
             await redis.sunionstore(key,*keys)
 
-
     async def middleware(self,app, handler):
+        async def fake_middleware_handler(request):
+            return await handler(request)
         async def middleware_handler(request):
             allowed = False
             acls = app['acls'].get((request.path,request.method),[])
@@ -140,4 +142,7 @@ class Authorization:
                 return web.HTTPForbidden()
             else:
                 return await handler(request)
-        return middleware_handler
+        if self.devel:
+            return fake_middleware_handler
+        else:
+            return middleware_handler
