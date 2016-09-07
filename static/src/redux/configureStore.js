@@ -4,20 +4,14 @@ import rootReducer from '../reducers';
 import DevTools from '../containers/DevTools';
 import createLogger from 'redux-logger';
 import { persistState} from 'redux-devtools';
-import axios from 'axios';
-import axiosMiddleware from 'redux-axios-middleware';
 import WSClient from './websocket';
 
-const axiosClient = axios.create({
-    baseURL: 'api',
-    responseType: 'json'
-});
 
 //handling of ws and store should be just fine, see: http://stackoverflow.com/questions/31970675/where-do-long-running-processes-live-in-a-react-redux-application
 const wsclient = new WSClient('ws://localhost:5000/api/ws');
 
 const storeEnhancers = [
-    applyMiddleware(thunkMiddleware,axiosMiddleware(axiosClient),wsclient.middleware)
+    applyMiddleware(thunkMiddleware)
 ];
 
 if (process.env.NODE_ENV !== 'production') {
