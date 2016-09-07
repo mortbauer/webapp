@@ -21,6 +21,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"',
+        API_URL: '"http://localhost:5000/api"',
       },
       __DEVELOPMENT__: false,
     }),

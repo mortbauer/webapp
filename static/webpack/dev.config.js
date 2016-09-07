@@ -23,6 +23,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"development"',
+        API_URL: '"/api"',
       },
       __DEVELOPMENT__: true,
     }),
