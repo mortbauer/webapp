@@ -60,6 +60,7 @@ class Authorization:
         self.devel = devel
         self.authenticater = authenticater
         self.pool = redis_pool
+        self.expiration_time = 60*60*24 if devel else 60
 
     async def get_user_roles(self,user_id):
         key = 'user_roles::%s'%user_id
@@ -99,7 +100,7 @@ class Authorization:
         is_correct = False
         user = self.authenticater.data_from_token(token)
         if user is not None:
-            key = 'session_permissions::%s'%token
+            key = 'session_permissions::{0}::{1}'.format(user['id'],token)
             with await self.pool as redis:
                 if await redis.exists(key):
                     is_correct = True
@@ -107,14 +108,15 @@ class Authorization:
 
     async def add_user_to_session(self,user):
         token = self.authenticater.generate_token(user)
-        key = 'session_permissions::%s'%token
-        roles = await self.get_user_roles(user)
+        key = 'session_permissions::{0}::{1}'.format(user.id,token)
+        roles = await self.get_user_roles(user.id)
         with await self.pool as redis:
-            await redis.delete(key)
             keys = ['role_permissions::%s'%x for x in roles]
             await redis.sunionstore(key,keys[0],*keys[1:])
+            # add default role
+            await redis.sadd(key,'user')
             # expire in 60 seconds
-            await redis.expire(key,60)
+            await redis.expire(key,self.expiration_time)
         return token
 
     async def set_session_permissions(self,token,roles):

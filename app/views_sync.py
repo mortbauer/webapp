@@ -38,13 +38,10 @@ async def get_token(request):
 async def is_token_valid(request):
     incoming = await request.json()
     if incoming and 'token' in incoming:
-        try:
-            if await request.app['auth'].verify_token(incoming['token']):
-                return jsonify(web.Response,{'token_is_valid':True})
-            else:
-                return jsonify(web.Response,{'token_is_valid':False})
-        except:
-            return web.HTTPBadRequest()
+        if await request.app['auth'].verify_token(incoming['token']):
+            return jsonify(web.Response,{'token_is_valid':True})
+        else:
+            return jsonify(web.Response,{'token_is_valid':False})
     else:
         return web.HTTPBadRequest()
 
