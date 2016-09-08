@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+const client = axios.create({
+    baseURL: process.env.API_URL,
+    responseType: 'json',
+});
+
 const tokenConfig = function (token) {
     return {
         headers: {
@@ -9,13 +14,13 @@ const tokenConfig = function (token) {
 };
 
 export function validate_token(token) {
-    return axios.post('/api/is_token_valid', {
+    return client.post('/is_token_valid', {
         token: token,
     })
 }
 
 export function create_user(username, email, password) {
-    return axios.post('api/users', {
+    return client.post('/users', {
         username: username,
         email: email,
         password: password
@@ -23,16 +28,16 @@ export function create_user(username, email, password) {
 }
 
 export function get_token(email, password) {
-    return axios.post('api/get_token', {
+    return client.post('/get_token', {
         email: email,
         password: password
     })
 }
 
 export function get_transactions(token) {
-    return axios.get('api/transactions', tokenConfig(token))
+    return client.get('/transactions', tokenConfig(token))
 }
 
 export function protected_endpoint(token,endpoint) {
-    return axios.get(endpoint, tokenConfig(token))
+    return client.get(endpoint, tokenConfig(token))
 }
