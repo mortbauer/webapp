@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 /* global styles for app */
-import './styles/fonts/roboto-regular/font.css';
 import './styles/app.scss';
 
 /* application components */
@@ -18,10 +17,7 @@ export class App extends Component {
     render() {
         return (
             <section>
-                <Helmet
-                    defaultTitle="Webapp"
-                    titleTemplate="%s | Webapp"
-                />
+                <Helmet defaultTitle="Webapp" titleTemplate="%s | Webapp"/>
                 <Header/>
                 <div className="container" style={{"marginTop": 10, "paddingBottom": 250}}>
                     {this.props.children}
