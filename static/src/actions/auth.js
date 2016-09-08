@@ -50,6 +50,7 @@ export function loginUserSuccess(token) {
 
 export function loginUserFailure(error) {
     localStorage.removeItem('token');
+    browserHistory.push('/home')
     return {
         type: LOGIN_USER_FAILURE,
         payload: {
