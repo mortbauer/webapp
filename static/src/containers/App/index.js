@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 /* global styles for app */
 import './styles/app.scss';
+import './styles/fonts/roboto-regular/font.css';
 
 /* application components */
 import { Header } from 'components/Header';
