@@ -2,6 +2,7 @@ import os
 
 import asyncio
 import aioredis
+import aiohttp_cors
 from aiohttp import web
 from . import middleware
 from .auth import Authorization, Authentication, Bcrypt
@@ -63,5 +64,21 @@ app.router.add_route('POST','/api/get_token',views.get_token)
 app.router.add_route('POST','/api/is_token_valid',views.is_token_valid)
 app.router.add_route('GET','/api/ws',views.websocket_handler)
 
+
+# Configure default CORS settings.
+cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+})
+
+# Configure CORS on all routes.
+added_urls = set()
+for route in app.router.routes():
+    if not route._resource._name in added_urls:
+        added_urls.add(route._resource._name)
+        cors.add(route)
 
 # use package alcohol as inspiration for simple rbac
