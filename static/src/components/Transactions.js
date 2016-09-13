@@ -72,7 +72,7 @@ export default class TransactionView extends React.Component {
                             floatingLabelText="Filter Comment"
                             onChange={(e) =>this.changeValue(e, 'filter_comment')}
                         />
-                        <Infinite containerHeight={600} elementHeight={60}>
+                        <Infinite containerHeight={400} elementHeight={20}>
                             {rows}
                         </Infinite>
                     </div>

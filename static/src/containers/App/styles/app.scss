@@ -8,5 +8,19 @@
   h1, h2, h3, h4 {
     font-weight: 300;
   }
+  .mycontainer {
+      display: flex;
+      flex-wrap: wrap;
+  }
+  .myitem {
+      padding-left: 10px;
+  }
+  input[type="text"] {
+    display: block;
+    margin: 0;
+    font-family: sans-serif;
+    appearance: none;
+    border: none;
+  }
 
 }
