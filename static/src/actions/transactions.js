@@ -1,4 +1,7 @@
-import {TRANSACTIONS_GET} from '../constants/index'
+import {
+    TRANSACTIONS_GET,
+    TRANSACTIONS_FILTER_SET
+} from '../constants/index'
 
 
 export function loadTransactions(token){
@@ -13,3 +16,21 @@ export function loadTransactions(token){
     }
 }
         
+export function setCommentFilter(comment) {
+    return {
+        type: TRANSACTIONS_FILTER_SET,
+        payload: {
+            comment: comment
+        }
+    }
+}
+
+export function setDateFilter(date) {
+    return {
+        type: TRANSACTIONS_FILTER_SET,
+        payload: {
+            date: date
+        }
+    }
+}
+

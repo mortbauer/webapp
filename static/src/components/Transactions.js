@@ -4,14 +4,16 @@ import { bindActionCreators } from 'redux';
 import * as actionCreators from '../actions/transactions';
 import TextField from 'material-ui/TextField';
 import Transaction from './Transaction';
+import { getVisibleTransactions } from '../selectors';
 import Infinite from 'react-infinite';
+import PureRenderMixin from 'react-addons-pure-render-mixin';
 
 function mapStateToProps(state) {
     return {
         token: state.auth.token,
-        loaded: state.transactions.loaded,
+        filter: state.transactions.filter,
         isFetching: state.transactions.isFetching,
-        data: state.transactions.data,
+        transactions: getVisibleTransactions(state),
     }
 }
 
@@ -20,68 +22,75 @@ function mapDispatchToProps(dispatch) {
     return bindActionCreators(actionCreators, dispatch)
 }
 
+
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TransactionView extends React.Component {
 
     constructor(props) {
         super(props)
-        this.state = {
-            filter_comment:'',
-        };
     }
 
     componentDidMount() {
-        this.fetchData();
+        this.fetchTransactions();
     }
 
 
-    fetchData() {
-        let token = this.props.token;
-        this.props.loadTransactions(token);
+    fetchTransactions() {
+        this.props.loadTransactions(this.props.token);
     }
 
-   changeValue(e, type) {
-        const value = e.target.value;
-        const next_state = {};
-        next_state[type] = value;
-        this.setState(next_state)
-    }
+    updateCommentFilter(value) {
+        if (value.length >= 3){
+            this.props.setCommentFilter(value)
+        }
+        else {
+            this.props.setCommentFilter('')
+        }
 
+    }
 
     render() {
-        var rows = [];
-        if (this.props.data){
-            this.props.data.forEach((transaction) => {
-                if (transaction.comment.indexOf(this.state.filter_comment) === -1) {
-                    return;
-                }
-                rows.push(<Transaction key={transaction.id} transaction={transaction}/>)
-            });
-        };
         return (
-            <div>
-
-                {!this.props.loaded
-                    ? <h1>Loading data...</h1>
-                    :
-                    <div>
-                        <h1>Transactions</h1>
-                        <TextField
-                            id="filter_comment"
-                            hintText="Filter Comment"
-                            floatingLabelText="Filter Comment"
-                            onChange={(e) =>this.changeValue(e, 'filter_comment')}
-                        />
-                        <Infinite containerHeight={400} elementHeight={20}>
-                            {rows}
-                        </Infinite>
-                    </div>
-                }
-            </div>
+                <div>
+                    <h1>Transactions</h1>
+                    <TextField
+                        id="filter_comment"
+                        hintText="Filter Comment"
+                        floatingLabelText="Filter Comment"
+                        onChange={(e) =>this.updateCommentFilter(e.target.value)}
+                        defaultValue={this.props.filter.comment}
+                    />
+                    <TextField
+                        id="filter_date"
+                        hintText="Filter Date"
+                        floatingLabelText="Filter Date"
+                        onChange={(e) =>this.props.setDateFilter(e.target.value)}
+                        defaultValue={this.props.filter.date}
+                    />
+                    <TransactionList transactions={this.props.transactions}/>
+                </div>
         );
     }
 }
 
+class TransactionList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
+  }
+  
+  renderTransactions(){
+      return this.props.transactions.map(t => <Transaction key={t.id} transaction={t}/>)
+  }
 
+  render() {
+    return (
+        <Infinite containerHeight={800} elementHeight={20}>
+            {this.renderTransactions()}
+        </Infinite>
+    )
+  }
+}
 
+                   
 
