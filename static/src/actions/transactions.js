@@ -34,3 +34,12 @@ export function setDateFilter(date) {
     }
 }
 
+export function setAmountFilter(amount) {
+    return {
+        type: TRANSACTIONS_FILTER_SET,
+        payload: {
+            amount: amount
+        }
+    }
+}
+

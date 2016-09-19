@@ -6,7 +6,6 @@ import TextField from 'material-ui/TextField';
 import Transaction from './Transaction';
 import { getVisibleTransactions } from '../selectors';
 import Infinite from 'react-infinite';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
 
 function mapStateToProps(state) {
     return {
@@ -39,6 +38,10 @@ export default class TransactionView extends React.Component {
         this.props.loadTransactions(this.props.token);
     }
 
+    renderTransactions(){
+      return this.props.transactions.map(t => <Transaction key={t.id} transaction={t}/>)
+    }
+
     updateCommentFilter(value) {
         if (value.length >= 3){
             this.props.setCommentFilter(value)
@@ -46,7 +49,6 @@ export default class TransactionView extends React.Component {
         else {
             this.props.setCommentFilter('')
         }
-
     }
 
     render() {
@@ -61,36 +63,23 @@ export default class TransactionView extends React.Component {
                         defaultValue={this.props.filter.comment}
                     />
                     <TextField
+                        id="filter_amount"
+                        hintText="Filter Amount"
+                        floatingLabelText="Filter Amount"
+                        onChange={(e) =>this.props.setAmountFilter(e.target.value)}
+                        defaultValue={this.props.filter.amount}
+                    />
+                    <TextField
                         id="filter_date"
                         hintText="Filter Date"
                         floatingLabelText="Filter Date"
                         onChange={(e) =>this.props.setDateFilter(e.target.value)}
                         defaultValue={this.props.filter.date}
                     />
-                    <TransactionList transactions={this.props.transactions}/>
+                    <Infinite containerHeight={800} elementHeight={20}>
+                        {this.renderTransactions()}
+                    </Infinite>
                 </div>
         );
     }
 }
-
-class TransactionList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
-  }
-  
-  renderTransactions(){
-      return this.props.transactions.map(t => <Transaction key={t.id} transaction={t}/>)
-  }
-
-  render() {
-    return (
-        <Infinite containerHeight={800} elementHeight={20}>
-            {this.renderTransactions()}
-        </Infinite>
-    )
-  }
-}
-
-                   
-

@@ -12,6 +12,7 @@ const initialState = {
     filter: {
         comment: '',
         date: '',
+        amount: 0,
     },
     isFetching: false,
 };
