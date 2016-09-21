@@ -1,6 +1,7 @@
 import {
     TRANSACTIONS_GET,
-    TRANSACTIONS_FILTER_SET
+    TRANSACTIONS_FILTER_SET,
+    TRANSACTIONS_EDIT
 } from '../constants/index'
 
 
@@ -16,29 +17,23 @@ export function loadTransactions(token){
     }
 }
         
-export function setCommentFilter(comment) {
+export function setFilter(field,value) {
     return {
         type: TRANSACTIONS_FILTER_SET,
         payload: {
-            comment: comment
+            field: field,
+            value: value
         }
     }
 }
 
-export function setDateFilter(date) {
+export function editIdValue(id,field,value) {
     return {
-        type: TRANSACTIONS_FILTER_SET,
+        type: TRANSACTIONS_EDIT,
         payload: {
-            date: date
-        }
-    }
-}
-
-export function setAmountFilter(amount) {
-    return {
-        type: TRANSACTIONS_FILTER_SET,
-        payload: {
-            amount: amount
+            value: value,
+            field: field,
+            index: id
         }
     }
 }

@@ -9,9 +9,9 @@ import Infinite from 'react-infinite';
 
 function mapStateToProps(state) {
     return {
-        token: state.auth.token,
-        filter: state.transactions.filter,
-        isFetching: state.transactions.isFetching,
+        token: state.getIn(['auth','token']),
+        filter: state.getIn(['transactions','filter']),
+        isFetching: state.getIn(['transactions','isFetching']),
         transactions: getVisibleTransactions(state),
     }
 }
@@ -38,17 +38,12 @@ export default class TransactionView extends React.Component {
         this.props.loadTransactions(this.props.token);
     }
 
-    renderTransactions(){
-      return this.props.transactions.map(t => <Transaction key={t.id} transaction={t}/>)
+    editIdValue(id,event){
+        this.props.editIdValue(id,'amount',event.target.value);
     }
 
-    updateCommentFilter(value) {
-        if (value.length >= 3){
-            this.props.setCommentFilter(value)
-        }
-        else {
-            this.props.setCommentFilter('')
-        }
+    renderTransactions(){
+        return this.props.transactions.map(t => <Transaction key={t.get('id')} onChange={(e)=>this.editIdValue(t.get('id'),e)} data={t}/>)
     }
 
     render() {
@@ -59,21 +54,21 @@ export default class TransactionView extends React.Component {
                         id="filter_comment"
                         hintText="Filter Comment"
                         floatingLabelText="Filter Comment"
-                        onChange={(e) =>this.updateCommentFilter(e.target.value)}
+                        onChange={(e) =>this.props.setFilter('comment',e.target.value)}
                         defaultValue={this.props.filter.comment}
                     />
                     <TextField
                         id="filter_amount"
                         hintText="Filter Amount"
                         floatingLabelText="Filter Amount"
-                        onChange={(e) =>this.props.setAmountFilter(e.target.value)}
+                        onChange={(e) =>this.props.setFilter('amount',e.target.value)}
                         defaultValue={this.props.filter.amount}
                     />
                     <TextField
                         id="filter_date"
                         hintText="Filter Date"
                         floatingLabelText="Filter Date"
-                        onChange={(e) =>this.props.setDateFilter(e.target.value)}
+                        onChange={(e) =>this.props.setFilter('date',e.target.value)}
                         defaultValue={this.props.filter.date}
                     />
                     <Infinite containerHeight={800} elementHeight={20}>

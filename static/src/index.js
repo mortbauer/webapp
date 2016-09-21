@@ -11,8 +11,23 @@ import * as ActionTypes from './constants/index';
 
 injectTapEventPlugin();
 
+const createSelectLocationState = () => {
+  let prevRoutingState, prevRoutingStateJS;
+  return (state) => {
+    const routingState = state.get('router'); // or state.routing 
+    if (typeof prevRoutingState === 'undefined' || prevRoutingState !== routingState) {
+      prevRoutingState = routingState;
+      prevRoutingStateJS = routingState.toJS();
+    }
+    return prevRoutingStateJS;
+  };
+};
+
 const store = configureStore();
-const history = syncHistoryWithStore(browserHistory, store)
+window.store = store;
+const history = syncHistoryWithStore(browserHistory, store, {
+    selectLocationState: createSelectLocationState()
+});
 
 render(
     <MuiThemeProvider>

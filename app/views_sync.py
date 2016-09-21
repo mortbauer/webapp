@@ -88,12 +88,13 @@ async def users_post(request):
         return jsonify(web.HTTPBadRequest,{'errors':validator.errors})
 
 async def transactions_get(request):
-    transactions = []
+    transactions = {}
     with request.app['engine'].begin() as conn:
         for row in conn.execute(models.transaction.select()):
             d = dict(row)
             d['date'] = dump_datetime(d['date'])
-            transactions.append(d)
+            d['id'] = str(d['id'])
+            transactions[d['id']] = d
     return jsonify(web.Response,{'result':transactions})
 
 async def websocket_handler(request):

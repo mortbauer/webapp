@@ -1,3 +1,4 @@
+import Immutable from 'immutable';
 import {createReducer} from '../utils/misc';
 import {
     LOGIN_USER_SUCCESS,
@@ -11,7 +12,7 @@ import {
 
 import jwtDecode from 'jwt-decode';
 
-const initialState = {
+const initialState = Immutable.fromJS({
     token: null,
     email: null,
     id: null,
@@ -21,18 +22,18 @@ const initialState = {
     isRegistering: false,
     isRegistered: false,
     registerStatusText: null
-};
+});
 
 export default createReducer(initialState, {
     [LOGIN_USER_REQUEST]: (state, payload) => {
-        return Object.assign({}, state, {
+        return state.merge({
             'isAuthenticating': true,
             'statusText': null
         });
     },
     [LOGIN_USER_SUCCESS]: (state, payload) => {
         var jwt = jwtDecode(payload.token);
-        return Object.assign({}, state, {
+        return state.merge({
             'isAuthenticating': false,
             'isAuthenticated': true,
             'token': payload.token,
@@ -43,7 +44,7 @@ export default createReducer(initialState, {
 
     },
     [LOGIN_USER_FAILURE]: (state, payload) => {
-        return Object.assign({}, state, {
+        return state.merge({
             'isAuthenticating': false,
             'isAuthenticated': false,
             'token': null,
@@ -53,7 +54,7 @@ export default createReducer(initialState, {
         });
     },
     [LOGOUT_USER]: (state, payload) => {
-        return Object.assign({}, state, {
+        return state.merge({
             'isAuthenticated': false,
             'token': null,
             'email': null,
@@ -63,7 +64,7 @@ export default createReducer(initialState, {
     },
     [REGISTER_USER_SUCCESS]: (state, payload) => {
         var jwt = jwtDecode(payload.token);
-        return Object.assign({}, state, {
+        return state.merge({
             'isAuthenticating': false,
             'isAuthenticated': true,
             'isRegistering': false,
@@ -75,12 +76,12 @@ export default createReducer(initialState, {
 
     },
     [REGISTER_USER_REQUEST]: (state, payload) => {
-        return Object.assign({}, state, {
+        return state.merg({
             'isRegistering': true,
         });
     },
     [REGISTER_USER_FAILURE]: (state, payload) => {
-        return Object.assign({}, state, {
+        return state.merge({
             'isAuthenticated': false,
             'token': null,
             'email': null,

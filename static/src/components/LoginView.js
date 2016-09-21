@@ -11,8 +11,8 @@ import {validateEmail} from '../utils/misc'
 
 function mapStateToProps(state) {
     return {
-        isAuthenticating: state.auth.isAuthenticating,
-        statusText: state.auth.statusText
+        isAuthenticating: state.getIn(['auth','isAuthenticating']),
+        statusText: state.getIn(['auth','statusText'])
     }
 };
 

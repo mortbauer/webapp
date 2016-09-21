@@ -6,9 +6,9 @@ import { bindActionCreators } from 'redux';
 
 function mapStateToProps(state) {
     return {
-        token: state.auth.token,
-        email: state.auth.email,
-        isAuthenticated: state.auth.isAuthenticated
+        token: state.getIn(['auth','token']),
+        email: state.getIn(['auth','email']),
+        isAuthenticated: state.getIn(['auth','isAuthenticated'])
     }
 };
 
