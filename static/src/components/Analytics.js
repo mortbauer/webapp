@@ -10,8 +10,8 @@ import {validateEmail} from '../utils/misc'
 
 function mapStateToProps(state) {
     return {
-        isRegistering: state.auth.isRegistering,
-        registerStatusText: state.auth.registerStatusText
+        isRegistering: state.getIn(['auth','isRegistering']),
+        registerStatusText: state.getIn(['auth','registerStatusText'])
     }
 };
 
