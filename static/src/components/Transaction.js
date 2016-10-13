@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import TextField from 'material-ui/TextField';
 
-const Transaction = ({onChange,data}) => (
+const Transaction = ({data}) => (
     <div className="mycontainer">
-        <input type="text" style={{width:'2em'}} placeholder="test" value='t' onChange={onChange}/>
+        <div className="myitem" style={{width:'2em'}}>{data.get('order_group_id')?data.get('order_group_id'):''}</div>
         <div className="myitem" style={{width:'5em'}}>{data.get('id')}</div>
         <div className="myitem" style={{width:'7em'}}>{data.get('date')}</div>
         <div className="myitem" style={{width:'5em'}}>{data.get('amount')}</div>
@@ -13,8 +13,22 @@ const Transaction = ({onChange,data}) => (
 )
 
 Transaction.propTypes = {
-  onChange: PropTypes.func.isRequired,
   data: PropTypes.object.isRequired
 }
 
-export default Transaction
+const EditTransaction = ({onChange,data}) => (
+    <div className="mycontainer">
+        <input style={{width:'5em'}} value={data.get('order_group_id')?data.get('order_group_id'):''} onChange={onChange}/>
+        <div className="myitem" style={{width:'5em'}}>{data.get('id')}</div>
+        <div className="myitem" style={{width:'7em'}}>{data.get('date')}</div>
+        <div className="myitem" style={{width:'5em'}}>{data.get('amount')}</div>
+        <div className="myitem" style={{width:'14em'}}>{data.get('iban_knr')}</div>
+        <div className="myitem" >{data.get('comment')}</div>
+    </div>
+)
+
+EditTransaction.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  data: PropTypes.object.isRequired
+}
+export { Transaction, EditTransaction}

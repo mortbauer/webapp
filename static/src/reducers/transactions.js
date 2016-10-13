@@ -6,7 +6,7 @@ import {
     TRANSACTIONS_GET_SUCCESS,
     TRANSACTIONS_GET_FAIL,
     TRANSACTIONS_PUT,
-    TRANSACTIONS_EDIT,
+    TRANSACTIONS_ORDER_GROUP_EDIT,
     TRANSACTIONS_FILTER_SET,
 } from '../constants/index';
 
@@ -35,8 +35,8 @@ export function transactions(state = initialState, action) {
             return state.merge({
                 isFetching: true,
             })
-        case TRANSACTIONS_EDIT:
-            return state.setIn(['data',action.payload.index,action.payload.field],action.payload.value)
+        case TRANSACTIONS_ORDER_GROUP_EDIT:
+            return state.setIn(['data',action.payload.index,'order_group_id'],action.payload.value)
         case TRANSACTIONS_FILTER_SET:
             return state.setIn(['filter',action.payload.field],action.payload.value)
         case TRANSACTIONS_PUT:

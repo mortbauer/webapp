@@ -1,7 +1,7 @@
 import {
     TRANSACTIONS_GET,
     TRANSACTIONS_FILTER_SET,
-    TRANSACTIONS_EDIT
+    TRANSACTIONS_ORDER_GROUP_EDIT,
 } from '../constants/index'
 
 
@@ -27,12 +27,11 @@ export function setFilter(field,value) {
     }
 }
 
-export function editIdValue(id,field,value) {
+export function editOrderGroup(id,value) {
     return {
-        type: TRANSACTIONS_EDIT,
+        type: TRANSACTIONS_ORDER_GROUP_EDIT,
         payload: {
             value: value,
-            field: field,
             index: id
         }
     }

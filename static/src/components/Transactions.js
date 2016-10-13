@@ -3,10 +3,11 @@ import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../actions/transactions';
 import TextField from 'material-ui/TextField';
-import Transaction from './Transaction';
+import { Transaction, EditTransaction} from './Transaction';
 import { getVisibleTransactions } from '../selectors';
 import Infinite from 'react-infinite';
 import DebouncedInput from './DebouncedInput';
+import RaisedButton from 'material-ui/RaisedButton';
 
 function mapStateToProps(state) {
     return {
@@ -27,7 +28,10 @@ function mapDispatchToProps(dispatch) {
 export default class TransactionView extends React.Component {
 
     constructor(props) {
-        super(props)
+        super(props);
+        this.state = {
+            is_editing: false
+        };
     }
 
     componentDidMount() {
@@ -39,19 +43,35 @@ export default class TransactionView extends React.Component {
         this.props.loadTransactions(this.props.token);
     }
 
-    editIdValue(id,event){
-        this.props.editIdValue(id,'amount',event.target.value);
+    editOrderGroup(id,event){
+        this.props.editOrderGroup(id,event.target.value);
+    }
+
+    toggleEditing(event){
+        this.setState({'is_editing':!this.state.is_editing});
     }
 
     renderTransactions(){
-        return this.props.transactions.map(
-            t => <Transaction key={t.get('id')} onChange={(e)=>this.editIdValue(t.get('id'),e)} data={t}/>)
+        if (!this.state.is_editing){
+            return this.props.transactions.map(
+                t => <Transaction key={t.get('id')} data={t}/>)
+        }
+        else {
+            return this.props.transactions.map(
+                t => <EditTransaction key={t.get('id')} onChange={(e)=>this.editOrderGroup(t.get('id'),e)} data={t}/>)
+        }
     }
 
     render() {
         return (
                 <div>
                     <h1>Transactions</h1>
+                     <RaisedButton 
+                        type="button" 
+                        onClick={this.toggleEditing.bind(this)}
+                        style={{"marginTop": 50}} 
+                        label={this.state.is_editing ? "Stop Editing" : "Edit"}
+                    />
                     <div style={{display:'flex', flexDirection:'row'}}>
                         <div>
                             <label style={{fontSize:'10'}}>Filter Comment</label>
