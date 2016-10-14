@@ -105,6 +105,14 @@ export default class TransactionView extends React.Component {
                             />
                         </div>
                     </div>
+                    <div className="mycontainer">
+                        <div className="myitem" style={{width:'5em'}}>group</div>
+                        <div className="myitem" style={{width:'5em'}}>id</div>
+                        <div className="myitem" style={{width:'7em'}}>date</div>
+                        <div className="myitem" style={{width:'5em'}}>amount</div>
+                        <div className="myitem" style={{width:'14em'}}>iban_knr</div>
+                        <div className="myitem" >comment</div>
+                    </div>
                     <Infinite containerHeight={800} elementHeight={20}>
                         {this.renderTransactions()}
                     </Infinite>

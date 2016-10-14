@@ -3,7 +3,7 @@ import TextField from 'material-ui/TextField';
 
 const Transaction = ({data}) => (
     <div className="mycontainer">
-        <div className="myitem" style={{width:'2em'}}>{data.get('order_group_id')?data.get('order_group_id'):''}</div>
+        <div className="myitem" style={{width:'5em'}}>{data.get('order_group_id')?data.get('order_group_id'):''}</div>
         <div className="myitem" style={{width:'5em'}}>{data.get('id')}</div>
         <div className="myitem" style={{width:'7em'}}>{data.get('date')}</div>
         <div className="myitem" style={{width:'5em'}}>{data.get('amount')}</div>
