@@ -1,13 +1,15 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actionCreators from '../actions/transactions';
 import TextField from 'material-ui/TextField';
-import { Transaction, EditTransaction} from './Transaction';
-import { getVisibleTransactions } from '../selectors';
-import Infinite from 'react-infinite';
-import DebouncedInput from './DebouncedInput';
 import RaisedButton from 'material-ui/RaisedButton';
+import Infinite from 'react-infinite';
+
+import * as actionCreators from '../actions';
+import { getVisibleTransactions } from '../selectors';
+
+import { Transaction, EditTransaction} from './Transaction';
+import DebouncedInput from './DebouncedInput';
 
 function mapStateToProps(state) {
     return {
@@ -25,7 +27,7 @@ function mapDispatchToProps(dispatch) {
 
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class TransactionView extends React.Component {
+export default class Transactions extends React.Component {
 
     constructor(props) {
         super(props);

@@ -7,7 +7,7 @@ import { HomeContainer } from 'containers/HomeContainer';
 import LoginView from 'components/LoginView'
 import RegisterView from 'components/RegisterView'
 import NotFound from 'components/NotFound'
-import TransactionView from 'components/Transactions';
+import {Transactions} from './transactions/components';
 
 import {DetermineAuth} from 'components/DetermineAuth';
 import {requireAuthentication} from 'components/AuthenticatedComponent';
@@ -15,8 +15,8 @@ import {requireNoAuthentication} from 'components/notAuthenticatedComponent';
 
 export default (
     <Route path="/" component={App}>
-        <Route path="transactions" component={requireAuthentication(TransactionView)}/>
-        <Route path="main" component={requireAuthentication(TransactionView)}/>
+        <Route path="transactions" component={requireAuthentication(Transactions)}/>
+        <Route path="main" component={requireAuthentication(Transactions)}/>
         <Route path="login" component={requireNoAuthentication(LoginView)}/>
         <Route path="register" component={requireNoAuthentication(RegisterView)}/>
         <Route path="home" component={requireNoAuthentication(HomeContainer)}/>

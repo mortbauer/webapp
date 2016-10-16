@@ -1,13 +1,13 @@
 import {
-    TRANSACTIONS_GET,
-    TRANSACTIONS_FILTER_SET,
-    TRANSACTIONS_ORDER_GROUP_EDIT,
-} from '../constants/index'
+    PUT,
+    GET,
+    FILTER_SET,
+} from './actionTypes'
 
 
 export function loadTransactions(token){
     return {
-        type: TRANSACTIONS_GET,
+        type: GET,
         payload: {
             request: {
                 url: '/transactions',
@@ -19,7 +19,7 @@ export function loadTransactions(token){
         
 export function setFilter(field,value) {
     return {
-        type: TRANSACTIONS_FILTER_SET,
+        type: FILTER_SET,
         payload: {
             field: field,
             value: value
@@ -29,10 +29,11 @@ export function setFilter(field,value) {
 
 export function editOrderGroup(id,value) {
     return {
-        type: TRANSACTIONS_ORDER_GROUP_EDIT,
+        type: PUT,
         payload: {
-            value: value,
-            index: id
+            'field': 'order_group_id',
+            'value': value,
+            'index': id
         }
     }
 }

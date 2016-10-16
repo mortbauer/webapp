@@ -1,12 +1,13 @@
 import { createStore, applyMiddleware, compose} from 'redux';
 import thunkMiddleware from 'redux-thunk';
-import rootReducer from '../reducers';
-import DevTools from '../containers/DevTools';
 import createLogger from 'redux-logger';
 import { persistState} from 'redux-devtools';
 import axios from 'axios';
 import axiosMiddleware from 'redux-axios-middleware';
+
 import WSClient from './websocket';
+import rootReducer from '../rootReducer';
+import DevTools from '../containers/DevTools';
 
 
 const axiosClient = axios.create({
@@ -42,8 +43,8 @@ export default function configureStore(initialState) {
 
     if (module.hot) {
         // Enable Webpack hot module replacement for reducers
-        module.hot.accept('../reducers', () => {
-            const nextRootReducer = require('../reducers/index').default;
+        module.hot.accept('../transactions/reducer', () => {
+            const nextRootReducer = require('../rootReducer').default;
             store.replaceReducer(nextRootReducer);
         });
     }

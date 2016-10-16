@@ -1,3 +1,5 @@
+//components/DetermineAuth.js
+//
 import React from 'react';
 import {connect} from 'react-redux';
 import {validate_token} from '../utils/http_functions'
@@ -7,9 +9,9 @@ import { browserHistory } from 'react-router'
 
 function mapStateToProps(state) {
     return {
-        token: state.auth.token,
-        email: state.auth.email,
-        isAuthenticated: state.auth.isAuthenticated
+        token: state.getIn(['auth','token']),
+        email: state.getIn(['auth','email']),
+        isAuthenticated: state.getIn(['auth','isAuthenticated'])
     }
 };
 
