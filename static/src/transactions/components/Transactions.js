@@ -56,11 +56,11 @@ export default class Transactions extends React.Component {
     renderTransactions(){
         if (!this.state.is_editing){
             return this.props.transactions.map(
-                t => <Transaction key={t.get('id')} data={t}/>)
+                t => <Transaction key={t.get('id')} data={t}/>).toArray()
         }
         else {
             return this.props.transactions.map(
-                t => <EditTransaction key={t.get('id')} onChange={(e)=>this.editOrderGroup(t.get('id'),e)} data={t}/>)
+                t => <EditTransaction key={t.get('id')} onChange={(e)=>this.editOrderGroup(t.get('id'),e)} data={t}/>).toArray()
         }
     }
 
@@ -76,7 +76,7 @@ export default class Transactions extends React.Component {
                     />
                     <div style={{display:'flex', flexDirection:'row'}}>
                         <div>
-                            <label style={{fontSize:'10'}}>Filter Comment</label>
+                            <label style={{fontSize:'10px'}}>Filter Comment</label>
                             <DebouncedInput
                                 id="filter_comment"
                                 placeholder="Filter Comment"
@@ -85,23 +85,19 @@ export default class Transactions extends React.Component {
                             />
                         </div>
                         <div>
-                            <label style={{fontSize:'10'}}>Filter Amount</label>
+                            <label style={{fontSize:'10px'}}>Filter Amount</label>
                             <DebouncedInput
                                 id="filter_amount"
                                 placeholder="Filter Amount"
-                                hintText="Filter Amount"
-                                floatingLabelText="Filter Amount"
                                 onChange={(value) =>this.props.setFilter('amount',value)}
                                 value={this.props.filter.get('amount')}
                             />
                         </div>
                         <div>
-                            <label style={{fontSize:'10'}}>Filter Date</label>
+                            <label style={{fontSize:'10px'}}>Filter Date</label>
                             <DebouncedInput
                                 id="filter_date"
                                 placeholder="Filter Date"
-                                hintText="Filter Date"
-                                floatingLabelText="Filter Date"
                                 onChange={(value) =>this.props.setFilter('date',value)}
                                 value={this.props.filter.get('date')}
                             />
@@ -116,7 +112,7 @@ export default class Transactions extends React.Component {
                         <div className="myitem" >comment</div>
                     </div>
                     <Infinite containerHeight={800} elementHeight={20}>
-                        {this.renderTransactions()}
+                        { this.renderTransactions() }
                     </Infinite>
                 </div>
         );
