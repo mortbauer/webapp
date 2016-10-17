@@ -9,10 +9,7 @@ export function loadTransactions(token){
     return {
         type: GET,
         payload: {
-            request: {
-                url: '/transactions',
-                headers: {'Authorization': `Bearer ${token}`}
-            }
+            resource: 'transactions',
         }
     }
 }

@@ -97,16 +97,24 @@ async def transactions_get(request):
             transactions[d['id']] = d
     return jsonify(web.Response,{'result':transactions})
 
+async def transactions_get_raw(request):
+    transactions = {}
+    with request.app['engine'].begin() as conn:
+        for row in conn.execute(models.transaction.select()):
+            d = dict(row)
+            d['date'] = dump_datetime(d['date'])
+            d['id'] = str(d['id'])
+            transactions[d['id']] = d
+    return transactions
+
 async def websocket_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
     async for msg in ws:
         if msg.tp == MsgType.text:
-            print('got msg: %s'%msg.data)
-            if msg.data == 'close':
-                await ws.close()
-            else:
-                ws.send_str(msg.data + '/answer')
+            data = json.loads(msg.data)
+            res = await transactions_get_raw(request)
+            ws.send_str(json.dumps({'resource':'transactions','data':res}))
         elif msg.tp == MsgType.error:
             print('ws connection closed with exception %s' % ws.exception())
 

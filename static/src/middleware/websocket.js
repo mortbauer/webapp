@@ -25,7 +25,6 @@ export default class WSClient{
 
         this.websocket.onopen = (event) => {
             console.log('websocket open');
-            this.websocket.send('im ready now');
             this.reconnectAttempts = 0;
         }
 

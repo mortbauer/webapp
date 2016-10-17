@@ -4,6 +4,7 @@ import asyncio
 import aioredis
 import aiohttp_cors
 from aiohttp import web
+from .routes import router
 from . import middleware
 from .auth import Authorization, Authentication, Bcrypt
 
@@ -20,12 +21,10 @@ else:
 loop = asyncio.get_event_loop()
 
 if config.TESTING:
-    from . import views_sync as views
     from sqlalchemy import create_engine
     engine = create_engine(config.DATABASE_URI)
     kwargs = {'debug':True}
 else:
-    from . import views
     from aiopg.sa import create_engine
     engine = loop.run_until_complete(create_engine(config.DATABASE_URI, loop=loop))
     kwargs = {}
@@ -36,7 +35,7 @@ redis_pool = loop.run_until_complete(aioredis.create_pool(
 authenticater = Authentication(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
 authorizer = Authorization(redis_pool,authenticater,devel=config.TESTING)
 
-app = web.Application(middlewares=[authorizer.middleware],**kwargs)
+app = web.Application(middlewares=[authorizer.middleware],router=router,**kwargs)
 
 app['settings'] = config
 app['engine'] = engine
@@ -49,21 +48,6 @@ app['acls'] = {
         ('/api/is_token_valid','POST'):{'public'},
     }
 app['session'] = {} # for now dict, later user redis
-
-users_resource = app.router.add_resource('/api/users', name='users')
-users_resource.add_route('GET',views.users_get)
-users_resource.add_route('POST',views.users_post)
-
-user_resource = app.router.add_resource('/api/user/{id}', name='user')
-user_resource.add_route('GET',views.user_get)
-
-transactions_resource = app.router.add_resource('/api/transactions', name='transactions')
-transactions_resource.add_route('GET',views.transactions_get)
-
-app.router.add_route('POST','/api/get_token',views.get_token)
-app.router.add_route('POST','/api/is_token_valid',views.is_token_valid)
-app.router.add_route('GET','/api/ws',views.websocket_handler)
-
 
 # Configure default CORS settings.
 cors = aiohttp_cors.setup(app, defaults={
@@ -80,5 +64,6 @@ for route in app.router.routes():
     if not route._resource._name in added_urls:
         added_urls.add(route._resource._name)
         cors.add(route)
+
 
 # use package alcohol as inspiration for simple rbac

@@ -6,6 +6,12 @@ export function fromServerSync(store){
             store.dispatch(data.action);
         } else {
             console.log('got message without action');
+            store.dispatch({
+                type:'transactions/GET_SUCCESS',
+                payload:{
+                    'data':data.data,
+                }
+            })
         }
     }
 }
@@ -14,6 +20,8 @@ export function createMiddleware(to_server_handler){
     return store => next => action => {
         console.log(`syncer middlware on action: ${action.type}`);
         if (action.type.endsWith('/GET')){
+            action.payload['method'] = 'GET'
+            action.payload['token'] = store.getState().getIn(['auth','token'])
             to_server_handler(action.payload);
         }
         return next(action);

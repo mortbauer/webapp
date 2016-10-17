@@ -22,7 +22,7 @@ export default function reducer(state = initialState, action) {
     switch (action.type) {
         case GET_SUCCESS:
             return state.merge({
-                data: action.payload.data.result,
+                data: action.payload.data,
                 isFetching: false,
             })
         case GET_FAIL:
