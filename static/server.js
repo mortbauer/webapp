@@ -13,6 +13,11 @@ app.use(require('morgan')('short'));
   const webpackConfig = require('./webpack/common.config');
   const compiler = webpack(webpackConfig);
 
+  app.use(function(req,res,next){
+      res.setHeader("Content-Security-Policy", "connect-src 'self'");
+      next();
+  });
+
   app.use(require('webpack-dev-middleware')(compiler, {
     noInfo: true, publicPath: webpackConfig.output.publicPath,
   }));
@@ -22,6 +27,7 @@ app.use(require('morgan')('short'));
   }));
 
   app.use(express.static(__dirname + '/'));
+
 })();
 
 app.all(/^\/api\/(.*)/, function api(req, res) {
