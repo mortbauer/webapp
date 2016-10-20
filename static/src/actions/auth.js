@@ -38,6 +38,14 @@ export function validateAuth(token) {
 }
 
 export function loginUserSuccess(token) {
+    return function(dispatch,getState,wsclient){
+        console.log(wsclient);
+        wsclient.connect();
+        dispatch(loginUserSuccessAction(token));
+    }
+}
+
+export function loginUserSuccessAction(token) {
     localStorage.setItem('token', token);
     return {
         type: LOGIN_USER_SUCCESS,

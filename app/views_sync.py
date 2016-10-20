@@ -1,4 +1,5 @@
 import json
+import asyncio
 from aiohttp import web
 from aiohttp import MsgType
 from cerberus import Validator
@@ -14,6 +15,22 @@ TODO also add a session cookie, since jwt token alone is vulnerable against
 xss
 
 """
+
+resource_state = {
+        'ws':{},
+        'updates':asyncio.Queue(),
+        'listeners':{
+            'users':set(),
+            'transactions':set(),
+            }
+        }
+
+def add_update(resource,id):
+    resource_state['updates'].put((resource,id))
+
+def add_listener(resource,token):
+    resource_state['listeners'][resource].add(token)
+
 
 async def get_token(request):
     """ generate the jwt token
@@ -53,6 +70,7 @@ async def user_get(request):
     return jsonify(web.Response,{'result':user})
 
 async def users_get(request):
+    add_listener('users',request['token'])
     users = []
     with request.app['engine'].begin() as conn:
         for row in conn.execute(models.user.select()):
@@ -83,11 +101,13 @@ async def users_post(request):
             'id':user.id,
             'token':request.app['auth'].generate_token(user),
         }
+        add_update('users',user.id)
         return jsonify(web.Response,data)
     else:
         return jsonify(web.HTTPBadRequest,{'errors':validator.errors})
 
 async def transactions_get(request):
+    add_listener('transactions',request['token'])
     transactions = {}
     with request.app['engine'].begin() as conn:
         for row in conn.execute(models.transaction.select()):
@@ -95,26 +115,26 @@ async def transactions_get(request):
             d['date'] = dump_datetime(d['date'])
             d['id'] = str(d['id'])
             transactions[d['id']] = d
-    return jsonify(web.Response,{'result':transactions})
+    return jsonify(web.Response,transactions)
 
-async def transactions_get_raw(request):
-    transactions = {}
-    with request.app['engine'].begin() as conn:
-        for row in conn.execute(models.transaction.select()):
-            d = dict(row)
-            d['date'] = dump_datetime(d['date'])
-            d['id'] = str(d['id'])
-            transactions[d['id']] = d
-    return transactions
+async def update_loop():
+    while True:
+        resource,id_ = await resource_state['updates'].get() 
+        print(resource,id)
 
 async def websocket_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
+    token = None
     async for msg in ws:
         if msg.tp == MsgType.text:
-            data = json.loads(msg.data)
-            res = await transactions_get_raw(request)
-            ws.send_str(json.dumps({'resource':'transactions','data':res}))
+            if msg.data[:8] == 'identify':
+                token = msg.data[8:]
+            else:
+                data = json.loads(msg.data)
+                print(token is None,'got',data)
+            # res = await transactions_get_raw(request)
+            # ws.send_str(json.dumps({'resource':'transactions','data':res}))
         elif msg.tp == MsgType.error:
             print('ws connection closed with exception %s' % ws.exception())
 

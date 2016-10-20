@@ -128,6 +128,12 @@ class Authorization:
 
     async def middleware(self,app, handler):
         async def fake_middleware_handler(request):
+            token = None
+            if 'Authorization' in request.headers:
+                auth_header = request.headers['Authorization']
+                if auth_header.startswith('Bearer '):
+                    token = auth_header[7:]
+            request['token'] = token
             return await handler(request)
         async def middleware_handler(request):
             allowed = False
@@ -140,11 +146,9 @@ class Authorization:
                     token = auth_header[7:]
                     if await self.verify_token(token):
                         allowed = True
+                    request['token'] = token
             if not allowed:
                 return web.HTTPForbidden()
             else:
                 return await handler(request)
-        if self.devel:
-            return fake_middleware_handler
-        else:
-            return middleware_handler
+        return middleware_handler

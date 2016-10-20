@@ -45,8 +45,8 @@ export default class Transactions extends React.Component {
         this.props.loadTransactions(this.props.token);
     }
 
-    editOrderGroup(id,event){
-        this.props.editOrderGroup(id,event.target.value);
+    editOrderGroup(id,value){
+        this.props.editOrderGroup(id,value);
     }
 
     toggleEditing(event){
@@ -60,7 +60,7 @@ export default class Transactions extends React.Component {
         }
         else {
             return this.props.transactions.map(
-                t => <EditTransaction key={t.get('id')} onChange={(e)=>this.editOrderGroup(t.get('id'),e)} data={t}/>).toArray()
+                t => <EditTransaction key={t.get('id')} onChange={(v)=>this.editOrderGroup(t.get('id'),v)} data={t}/>).toArray()
         }
     }
 

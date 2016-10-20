@@ -20,9 +20,21 @@ export function createMiddleware(to_server_handler){
     return store => next => action => {
         console.log(`syncer middlware on action: ${action.type}`);
         if (action.type.endsWith('/GET')){
-            action.payload['method'] = 'GET'
-            action.payload['token'] = store.getState().getIn(['auth','token'])
-            to_server_handler(action.payload);
+            let data = {
+                'method':'GET',
+                'resource':action.type.substr(0,action.type.indexOf('/GET')),
+                'data':action.payload,
+            }
+            to_server_handler(data);
+        }
+        else if (action.type.endsWith('/PATCH')){
+            let data = {
+                'method':'PATCH',
+                'resource':action.type.substr(0,action.type.indexOf('/PATCH')),
+                'inst':action.payload.inst,
+                'id':action.payload.id,
+            }
+            to_server_handler(data);
         }
         return next(action);
     }

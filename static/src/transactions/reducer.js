@@ -5,6 +5,7 @@ import {
     GET_SUCCESS,
     GET_FAIL,
     PUT,
+    PATCH,
     FILTER_SET,
 } from './actionTypes';
 
@@ -33,8 +34,8 @@ export default function reducer(state = initialState, action) {
             return state.merge({
                 isFetching: true,
             })
-        case PUT:
-            return state.setIn(['data',action.payload.index,'order_group_id'],action.payload.value)
+        case PATCH:
+            return state.setIn(['data',action.payload.id,action.payload.inst.field],action.payload.inst.value)
         case FILTER_SET:
             return state.setIn(['filter',action.payload.field],action.payload.value)
         default:

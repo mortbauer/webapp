@@ -46,6 +46,7 @@ app['acls'] = {
         ('/api/users','POST'):{'public'},
         ('/api/get_token','POST'):{'public'},
         ('/api/is_token_valid','POST'):{'public'},
+        ('/api/ws','GET'):{'public'},
     }
 app['session'] = {} # for now dict, later user redis
 
@@ -65,5 +66,7 @@ for route in app.router.routes():
         added_urls.add(route._resource._name)
         cors.add(route)
 
+from . import views_sync as views
 
+loop.create_task(views.update_loop())
 # use package alcohol as inspiration for simple rbac

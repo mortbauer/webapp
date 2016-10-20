@@ -5,12 +5,12 @@ export default class WSClient{
         this.reconnectInterval = reconnectInterval;
         this.reconnectDecay = reconnectDecay;
         this.reconnectAttempts = 0;
-        this.connect();
         this.connected = false;
         this.store = null;
+        this.websocket = null;
         this.from_server_handler = from_server_handler;
     };
-    connect(){
+    connect(token){
         console.log(`connecting to: ${this.url}`);
 
         this.websocket = new WebSocket(this.url);
@@ -26,6 +26,7 @@ export default class WSClient{
         this.websocket.onopen = (event) => {
             console.log('websocket open');
             this.reconnectAttempts = 0;
+            this.websocket.send(`identify${token}`);
         }
 
         this.websocket.onclose = (event) => {
@@ -60,7 +61,12 @@ export default class WSClient{
                 console.log(`could not stringify to json ${data}`);
             }
             console.log(`to server handler sending ${msg}`);
-            ws.websocket.send(msg);
+            if (ws.websocket.readyState){
+                ws.websocket.send(msg);
+            }
+            else {
+                console.log('websocket not ready yet');
+            }
         } 
     }
     setFromServerHandler(from_server_handler){

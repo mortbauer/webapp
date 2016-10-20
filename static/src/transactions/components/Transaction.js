@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import TextField from 'material-ui/TextField';
+import DebouncedInput from './DebouncedInput';
 
 const Transaction = ({data}) => (
     <div className="mycontainer">
@@ -18,7 +19,7 @@ Transaction.propTypes = {
 
 const EditTransaction = ({onChange,data}) => (
     <div className="mycontainer">
-        <input style={{width:'5em'}} value={data.get('order_group_id')?data.get('order_group_id'):''} onChange={onChange}/>
+        <DebouncedInput style={{width:'5em'}} value={data.get('order_group_id')?data.get('order_group_id'):''} onChange={onChange}/>
         <div className="myitem" style={{width:'5em'}}>{data.get('id')}</div>
         <div className="myitem" style={{width:'7em'}}>{data.get('date')}</div>
         <div className="myitem" style={{width:'5em'}}>{data.get('amount')}</div>

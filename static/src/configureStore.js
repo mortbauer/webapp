@@ -20,7 +20,7 @@ const axiosClient = axios.create({
 const wsclient = new WSClient('ws://localhost:5000/api/ws');
 
 const storeEnhancers = [
-    applyMiddleware(thunkMiddleware,createMiddleware(wsclient.createToServerHandler()))
+    applyMiddleware(thunkMiddleware.withExtraArgument(wsclient),axiosMiddleware(axiosClient),createMiddleware(wsclient.createToServerHandler()))
 ];
 
 if (process.env.NODE_ENV !== 'production') {

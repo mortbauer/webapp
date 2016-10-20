@@ -1,5 +1,5 @@
 import {
-    PUT,
+    PATCH,
     GET,
     FILTER_SET,
 } from './actionTypes'
@@ -9,7 +9,10 @@ export function loadTransactions(token){
     return {
         type: GET,
         payload: {
-            resource: 'transactions',
+            request: {
+                url: '/transactions',
+                headers: {'Authorization': `Bearer ${token}`}
+            }
         }
     }
 }
@@ -26,11 +29,10 @@ export function setFilter(field,value) {
 
 export function editOrderGroup(id,value) {
     return {
-        type: PUT,
+        type: PATCH,
         payload: {
-            'field': 'order_group_id',
-            'value': value,
-            'index': id
+            'inst': {'op':'replace','field':'order_group_id','value': value},
+            'id': id
         }
     }
 }
