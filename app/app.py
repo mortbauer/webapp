@@ -33,9 +33,9 @@ redis_pool = loop.run_until_complete(aioredis.create_pool(
     (config.REDIS_HOST,config.REDIS_PORT)))
 
 authenticater = Authentication(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
-authorizer = Authorization(redis_pool,authenticater,devel=config.TESTING)
+authorizer = Authorization(redis_pool,authenticater,expiration=config.TOKEN_EXPIRATION)
 
-app = web.Application(middlewares=[authorizer.middleware],router=router,**kwargs)
+app = web.Application(middlewares=[authorizer.aiohttp_middleware],router=router,**kwargs)
 
 app['settings'] = config
 app['engine'] = engine
@@ -43,6 +43,7 @@ app['bcrypt'] = Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_
 app['auth'] = authorizer
 app['acls'] = {
         ('/api/user/{id}','GET'):{'owner'},
+        ('/api/user/{id}','PUT'):{'create_user'},
         ('/api/users','POST'):{'public'},
         ('/api/get_token','POST'):{'public'},
         ('/api/is_token_valid','POST'):{'public'},

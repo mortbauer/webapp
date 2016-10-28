@@ -1,4 +1,5 @@
 import json
+import uuid
 import asyncio
 from aiohttp import web
 from aiohttp import MsgType
@@ -122,17 +123,35 @@ async def update_loop():
         resource,id_ = await resource_state['updates'].get() 
         print(resource,id)
 
+async def handle_sub(ws_id, data):
+    v = Validator(schemas.sub,allow_unknown=True)
+    if v.validate(data):
+        store
+
+
+async def rpc_router_middleware(app):
+    async def middleware_handler(request):
+        # determine the endpoint
+        return 'the endpoint'
+    return middleware_handler
+    
 async def websocket_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
+    ws_id = uuid.uuid1()
     token = None
+    ws_middlewares = []
+    handler = await rpc_router_middleware(request.app)
+    for factory in ws_middlewares:
+        handler = await factory(app,handler)
     async for msg in ws:
         if msg.tp == MsgType.text:
-            if msg.data[:8] == 'identify':
-                token = msg.data[8:]
-            else:
-                data = json.loads(msg.data)
-                print(token is None,'got',data)
+            result = await handler(msg.data)
+            # data = json.loads(msg.data)
+            # if 'msg' in data:
+                # for factory in reversed(ws_middlewares):
+                    # handler = await factory(app,handler)
+                
             # res = await transactions_get_raw(request)
             # ws.send_str(json.dumps({'resource':'transactions','data':res}))
         elif msg.tp == MsgType.error:

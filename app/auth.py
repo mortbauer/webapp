@@ -41,10 +41,10 @@ class Authentication:
         self._serializer = Serializer(
             self._secret_key, expires_in=self._expiration)
 
-    def generate_token(self,user):
+    def generate_token(self,user_id,user_name):
         token = self._serializer.dumps({
-            'id': user.id,
-            'email': user.email,
+            'id': user_name,
+            'username': user_name,
         }).decode('utf-8')
         return token
 
@@ -56,17 +56,15 @@ class Authentication:
         return data
 
 class Authorization:
-    def __init__(self,redis_pool,authenticater,devel=False):
-        self.devel = devel
+    def __init__(self,redis_pool,authenticater,expiration):
         self.authenticater = authenticater
         self.pool = redis_pool
-        self.expiration_time = 60*60*24 if devel else 60
+        self.expiration_time = expiration
 
     async def get_user_roles(self,user_id):
         key = 'user_roles::%s'%user_id
         with await self.pool as redis:
             roles = set(await redis.smembers(key))
-            roles.add('user')
         return roles
 
     async def set_user_roles(self,user_id,roles):
@@ -91,10 +89,10 @@ class Authorization:
             return await redis.sismember(
                     'session_permissions::%s'%token,permission)
 
-    async def get_session_permissions(self,token):
-        key = 'session_roles::%s'%token
+    async def get_session_permissions(self,user_id,token):
+        key = 'session_permissions::{0}::{1}'.format(user_id,token)
         with await self.pool as redis:
-            return await set(redis.smembers('session_permissions::%s'%token))
+            return set(await redis.smembers(key))
 
     async def verify_token(self,token):
         is_correct = False
@@ -107,26 +105,17 @@ class Authorization:
         return is_correct
 
     async def add_user_to_session(self,user):
-        token = self.authenticater.generate_token(user)
-        key = 'session_permissions::{0}::{1}'.format(user.id,token)
-        roles = await self.get_user_roles(user.id)
+        token = self.authenticater.generate_token(user['id'],user['email'])
+        key = 'session_permissions::{0}::{1}'.format(user['id'],token)
+        roles = await self.get_user_roles(user['id'])
         with await self.pool as redis:
-            keys = ['role_permissions::%s'%x for x in roles]
-            await redis.sunionstore(key,keys[0],*keys[1:])
-            # add default role
-            await redis.sadd(key,'user')
+            keys = ['role_permissions::{0}'.format(x.decode('utf-8')) for x in roles]
+            await redis.sunionstore(key,*keys)
             # expire in 60 seconds
             await redis.expire(key,self.expiration_time)
         return token
 
-    async def set_session_permissions(self,token,roles):
-        key = 'session_permissions::%s'%token
-        with await self.pool as redis:
-            await redis.delete(key)
-            keys = ['role_permissions::%s'%x for x in roles]
-            await redis.sunionstore(key,*keys)
-
-    async def middleware(self,app, handler):
+    async def aiohttp_middleware(self,app, handler):
         async def fake_middleware_handler(request):
             token = None
             if 'Authorization' in request.headers:
@@ -151,4 +140,14 @@ class Authorization:
                 return web.HTTPForbidden()
             else:
                 return await handler(request)
+        return middleware_handler
+
+    async def ws_rpc_middleware(self,app,handler):
+        async def middleware_handler(data):
+            if data['msg'] == 'rpc':
+
+
+
+
+            return await handler(data)
         return middleware_handler

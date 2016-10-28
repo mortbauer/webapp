@@ -34,3 +34,9 @@ user = {
         #},
     #},
 #}
+
+sub = {
+    'id':{'type':'string', 'required':True},
+    'name':{'type':'string', 'required':True},
+    'params':{'type':'dict', 'required':True},
+}
