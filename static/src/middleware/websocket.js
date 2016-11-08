@@ -6,32 +6,39 @@ export default class WSClient{
         this.reconnectDecay = reconnectDecay;
         this.reconnectAttempts = 0;
         this.connected = false;
-        this.store = null;
         this.websocket = null;
         this.from_server_handler = from_server_handler;
     };
     connect(token){
         console.log(`connecting to: ${this.url}`);
 
-        this.websocket = new WebSocket(this.url);
-
-        this.websocket.onmessage = (event) => {
-            this.handleIncomming(event.data);
+        try {
+            this.websocket = new WebSocket(this.url);
         }
-
-        this.websocket.onerror = (event) => {
-            console.log('websocket error');
+        catch(e) {
+            console.log('websocket construction error');
+            this.websocket = null;
+            this.reconnect();
         }
+        if (!!this.websocket){
+            this.websocket.onmessage = (event) => {
+                this.handleIncomming(event.data);
+            }
 
-        this.websocket.onopen = (event) => {
-            console.log('websocket open');
-            this.reconnectAttempts = 0;
-            this.websocket.send(`identify${token}`);
-        }
+            this.websocket.onerror = (event) => {
+                console.log('websocket error');
+            }
 
-        this.websocket.onclose = (event) => {
-            console.log('websocket closed');
-            this.reconnect()
+            this.websocket.onopen = (event) => {
+                console.log('websocket open');
+                this.reconnectAttempts = 0;
+                this.websocket.send(`identify${token}`);
+            }
+
+            this.websocket.onclose = (event) => {
+                console.log('websocket closed');
+                this.reconnect()
+            }
         }
     }
     reconnect(){
@@ -46,7 +53,7 @@ export default class WSClient{
         }catch(err){
             console.log(`could not parse to json ${msg}`);
         }
-        if (!!data){
+        if (!!data && !!this.from_server_handler){
             console.log(`should go to store ${msg}`);
             this.from_server_handler(data);
             

@@ -34,6 +34,8 @@ class Handler(FileSystemEventHandler):
     def on_any_event(self,event):
         if event.is_directory:
             return None
+        if '__pycache__' in event.src_path:
+            return None
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
             print("Received created event - %s." % event.src_path)

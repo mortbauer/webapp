@@ -108,11 +108,12 @@ class Authorization:
         token = self.authenticater.generate_token(user['id'],user['email'])
         key = 'session_permissions::{0}::{1}'.format(user['id'],token)
         roles = await self.get_user_roles(user['id'])
-        with await self.pool as redis:
+        if len(roles):
             keys = ['role_permissions::{0}'.format(x.decode('utf-8')) for x in roles]
-            await redis.sunionstore(key,*keys)
-            # expire in 60 seconds
-            await redis.expire(key,self.expiration_time)
+            with await self.pool as redis:
+                await redis.sunionstore(key,*keys)
+                # expire in 60 seconds
+                await redis.expire(key,self.expiration_time)
         return token
 
     async def aiohttp_middleware(self,app, handler):
@@ -145,9 +146,7 @@ class Authorization:
     async def ws_rpc_middleware(self,app,handler):
         async def middleware_handler(data):
             if data['msg'] == 'rpc':
-
-
-
+                pass
 
             return await handler(data)
         return middleware_handler

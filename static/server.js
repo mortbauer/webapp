@@ -14,7 +14,7 @@ app.use(require('morgan')('short'));
   const compiler = webpack(webpackConfig);
 
   app.use(function(req,res,next){
-      res.setHeader("Content-Security-Policy", "connect-src 'self'");
+      //res.setHeader("Content-Security-Policy", "connect-src 'self'");
       next();
   });
 
