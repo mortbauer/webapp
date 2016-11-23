@@ -8,6 +8,7 @@ export default class WSClient{
         this.connected = false;
         this.websocket = null;
         this.from_server_handler = from_server_handler;
+        this.unsent = [];
     };
     connect(token){
         console.log(`connecting to: ${this.url}`);
@@ -33,6 +34,9 @@ export default class WSClient{
                 console.log('websocket open');
                 this.reconnectAttempts = 0;
                 this.websocket.send(`identify${token}`);
+                while (this.unsent.size){
+                    this.websocket.send(unsent.shift());
+                }
             }
 
             this.websocket.onclose = (event) => {
@@ -73,6 +77,7 @@ export default class WSClient{
             }
             else {
                 console.log('websocket not ready yet');
+                ws.unsent.push(msg);
             }
         } 
     }
