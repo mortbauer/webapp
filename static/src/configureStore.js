@@ -48,6 +48,10 @@ export default function configureStore(initialState) {
             const nextRootReducer = require('./rootReducer').default;
             store.replaceReducer(nextRootReducer);
         });
+        module.hot.accept('./middleware/websocket', () => {
+            const nextRootReducer = require('./rootReducer').default;
+            store.replaceReducer(nextRootReducer);
+        });
     }
 
     return store;
