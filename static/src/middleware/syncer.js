@@ -18,12 +18,11 @@ export function fromServerSync(store){
 
 export function createMiddleware(to_server_handler){
     return store => next => action => {
-        console.log(`syncer middlware on action: ${action.type}`);
         if (action.type.endsWith('/GET')){
+            console.log(`syncer middlware on action: ${action.type}`);
             let data = {
                 'method':'GET',
-                'resource':action.type.substr(0,action.type.indexOf('/GET')),
-                'data':action.payload,
+                'resource':action.payload.resource,
             }
             to_server_handler(data);
         }
