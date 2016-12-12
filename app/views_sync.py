@@ -17,22 +17,6 @@ xss
 
 """
 
-resource_state = {
-        'ws':{},
-        'updates':asyncio.Queue(),
-        'listeners':{
-            'users':set(),
-            'transactions':set(),
-            }
-        }
-
-def add_update(resource,id):
-    resource_state['updates'].put((resource,id))
-
-def add_listener(resource,token):
-    resource_state['listeners'][resource].add(token)
-
-
 async def get_token(request):
     """ generate the jwt token
     query the db for the user with the specified email address, if found it
@@ -107,32 +91,41 @@ async def users_post(request):
     else:
         return jsonify(web.HTTPBadRequest,{'errors':validator.errors})
 
-async def transactions_get(request):
-    add_listener('transactions',request['token'])
-    transactions = {}
-    with request.app['engine'].begin() as conn:
-        for row in conn.execute(models.transaction.select()):
-            d = dict(row)
-            d['date'] = dump_datetime(d['date'])
-            d['id'] = str(d['id'])
-            transactions[d['id']] = d
-    return jsonify(web.Response,transactions)
+async def handle_sub(app,msg):
+    v = Validator(schemas.sub)
+    if v.validate(msg):
+        resource = msg['name']
+        if resource in app['subscriptions']:
+            app['subscriptions'][resource].add(ws_id)
+            return {'msg':'subscribed to %s'%resource}
+        else:
+            return {'msg':'topic %s not available'%resource}
+    else:
+        return {'errors':v.errors}
 
-async def update_loop():
-    while True:
-        resource,id_ = await resource_state['updates'].get() 
-        print(resource,id)
+async def handle_rpc(app,msg):
+    v = Validator(schemas.rpc)
+    if v.validate(msg):
+        print('rpc: {0}'.format(msg['method']))
+        if msg['method'] in app['endpoints']:
+            method = app['endpoints'][msg['method']]['method']
+            return await method(app,msg['params'])
+        else:
+            return {'errors':'no method %s'%msg['method']}
+    else:
+        return {'errors':v.errors}
 
-async def handle_sub(ws_id, data):
-    v = Validator(schemas.sub,allow_unknown=True)
-    if v.validate(data):
-        store
-
-
-async def rpc_router_middleware(app):
-    async def middleware_handler(request):
-        # determine the endpoint
-        return 'the endpoint'
+async def rpc_router_middleware(app,ws_id):
+    async def middleware_handler(msg):
+        msg_type = msg.pop('msg',None)
+        if msg_type is None:
+            return {'errors':['no msg']}
+        elif msg_type == 'sub':
+            return await handle_sub(app,msg)
+        elif msg_type == 'rpc':
+            return await handle_rpc(app,msg)
+        else:
+            return {'errors':['msg %s unknown'%msg_type]}
     return middleware_handler
     
 async def websocket_handler(request):
@@ -140,23 +133,20 @@ async def websocket_handler(request):
     await ws.prepare(request)
     ws_id = uuid.uuid1()
     token = None
+    app = request.app
     ws_middlewares = []
-    handler = await rpc_router_middleware(request.app)
+    handler = await rpc_router_middleware(app,ws_id)
     for factory in ws_middlewares:
         handler = await factory(app,handler)
     async for msg in ws:
         if msg.tp == MsgType.text:
-            result = await handler(msg.data)
-            # data = json.loads(msg.data)
-            # if 'msg' in data:
-                # for factory in reversed(ws_middlewares):
-                    # handler = await factory(app,handler)
-                
-            # res = await transactions_get_raw(request)
-            # ws.send_str(json.dumps({'resource':'transactions','data':res}))
+            result = await handler(json.loads(msg.data))
+            if result is not None:
+                ws.send_str(json.dumps(result))
         elif msg.tp == MsgType.error:
             print('ws connection closed with exception %s' % ws.exception())
-
+            break
     print('websocket connection closed')
-
+    if ws_id in app['ws']:
+        app['ws'].pop(ws_id)
     return ws

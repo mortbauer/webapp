@@ -1,4 +1,5 @@
 import {
+    RPC,
     PATCH,
     GET,
     FILTER_SET,
@@ -7,9 +8,10 @@ import {
 
 export function loadTransactions(token){
     return {
-        type: GET,
+        type: RPC,
         payload: {
-            resource: 'transactions',
+            method: 'transactions_get',
+            kwargs: {},
         }
     }
 }

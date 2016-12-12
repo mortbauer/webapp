@@ -19,7 +19,7 @@ export default class WSClient{
         catch(e) {
             console.log('websocket construction error');
             this.websocket = null;
-            this.reconnect();
+            this.reconnect(token);
         }
         if (!!this.websocket){
             this.websocket.onmessage = (event) => {
@@ -33,7 +33,12 @@ export default class WSClient{
             this.websocket.onopen = (event) => {
                 console.log('websocket open');
                 this.reconnectAttempts = 0;
-                this.websocket.send(`identify${token}`);
+                this.websocket.send(JSON.stringify({
+                    'method':'identify',
+                    'kwargs':{
+                        'token':token,
+                    }
+                }));
                 while (this.unsent.size){
                     this.websocket.send(unsent.shift());
                 }
@@ -41,14 +46,14 @@ export default class WSClient{
 
             this.websocket.onclose = (event) => {
                 console.log('websocket closed');
-                this.reconnect()
+                this.reconnect(token)
             }
         }
     }
-    reconnect(){
+    reconnect(token){
         var timeout = this.reconnectInterval * Math.pow(this.reconnectDecay, this.reconnectAttempts);
         console.log(`try to reconnect in: ${timeout}`);
-        setTimeout(()=>this.connect(),timeout);
+        setTimeout(()=>this.connect(token),timeout);
         this.reconnectAttempts ++;
     }
     handleIncomming(msg){

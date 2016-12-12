@@ -15,3 +15,10 @@ def jsonify(resp,data):
 
 def json_response(data):
     return web.Response(body=json.dumps(data).encode('utf-8'),content_type='application/json')
+
+def error_response(errors):
+    return {'status':'error','errors':errors}
+
+def success_response(data):
+    return {'status':'success','result':data}
+

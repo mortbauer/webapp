@@ -1,3 +1,4 @@
+
 export function fromServerSync(store){
     return data => {
         if (!!data.action){
@@ -5,26 +6,22 @@ export function fromServerSync(store){
             console.log(`${Date.now()} dispatching action ${data.action.type}`);
             store.dispatch(data.action);
         } else {
-            console.log('got message without action');
-            store.dispatch({
-                type:'transactions/GET_SUCCESS',
-                payload:{
-                    'data':data.data,
-                }
-            })
+            console.log('got message without action',data);
+            //store.dispatch({
+                //type:'transactions/GET_SUCCESS',
+                //payload:{
+                    //'data':data.data,
+                //}
+            //})
         }
     }
 }
 
 export function createMiddleware(to_server_handler){
     return store => next => action => {
-        if (action.type.endsWith('/GET')){
+        if (action.type == 'RPC'){
             console.log(`syncer middlware on action: ${action.type}`);
-            let data = {
-                'method':'GET',
-                'resource':action.payload.resource,
-            }
-            to_server_handler(data);
+            to_server_handler(action.payload);
         }
         else if (action.type.endsWith('/PATCH')){
             let data = {

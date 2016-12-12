@@ -5,6 +5,7 @@ import aioredis
 import aiohttp_cors
 from aiohttp import web
 from .routes import router
+from . import endpoints
 from . import middleware
 from .auth import Authorization, Authentication, Bcrypt
 
@@ -42,32 +43,21 @@ app['engine'] = engine
 app['bcrypt'] = Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
 app['auth'] = authorizer
 app['acls'] = {
-        ('/api/user/{id}','GET'):{'owner'},
-        ('/api/user/{id}','PUT'):{'create_user'},
-        ('/api/users','POST'):{'public'},
-        ('/api/get_token','POST'):{'public'},
-        ('/api/is_token_valid','POST'):{'public'},
-        ('/api/ws','GET'):{'public'},
-    }
+    ('/api/user/{id}','GET'):{'owner'},
+    ('/api/user/{id}','PUT'):{'create_user'},
+    ('/api/users','POST'):{'public'},
+    ('/api/get_token','POST'):{'public'},
+    ('/api/is_token_valid','POST'):{'public'},
+    ('/api/ws','GET'):{'public'},
+}
 app['session'] = {} # for now dict, later user redis
+app['ws'] = {}
+app['subscriptions'] = {}
+app['updates'] = {}
+app['endpoints'] = {
+        'transactions_get':{'method':endpoints.transactions_get,'acls':{'user'}},
+        'transactions_patch':{'method':endpoints.transactions_patch,'acls':{'admin'}},
+    }
 
-# Configure default CORS settings.
-cors = aiohttp_cors.setup(app, defaults={
-    "*": aiohttp_cors.ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-        )
-})
-
-# Configure CORS on all routes.
-added_urls = set()
-for route in app.router.routes():
-    if not route._resource._name in added_urls:
-        added_urls.add(route._resource._name)
-        cors.add(route)
-
-from . import views_sync as views
-
-loop.create_task(views.update_loop())
+# loop.create_task(views.update_loop())
 # use package alcohol as inspiration for simple rbac

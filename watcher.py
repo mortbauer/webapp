@@ -36,19 +36,11 @@ class Handler(FileSystemEventHandler):
             return None
         if '__pycache__' in event.src_path:
             return None
-        elif event.event_type == 'created':
-            # Take any action here when a file is first created.
-            print("Received created event - %s." % event.src_path)
-
-        elif event.event_type == 'modified':
-            # Taken any action here when a file is modified.
-            print("Received modified event - %s." % event.src_path)
         self.reload()
 
     def reload(self):
         if self.p is not None:
             self.p.terminate()
-            print('reloading')
         self.p = subprocess.Popen(['python','manage.py','runserver'])
 
 

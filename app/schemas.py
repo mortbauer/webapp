@@ -36,7 +36,23 @@ user = {
 #}
 
 sub = {
-    'id':{'type':'string', 'required':True},
     'name':{'type':'string', 'required':True},
+}
+
+rpc = {
+    'method':{'type':'string', 'required':True},
     'params':{'type':'dict', 'required':True},
+}
+
+transaction = {
+    'id':{'type':'string', 'required':True},
+    'our_iban':{'type':'string', 'required':True},
+    'date':{'type':'date', 'required':True},
+    'bic_blz':{'type':'string', 'required':False},
+    'transaction_number':{'type':'string', 'required':False},
+    'iban_knr':{'type':'string', 'required':False},
+    'amount':{'type':'float', 'required':False},
+    'comment':{'type':'string', 'required':False},
+    'verified':{'type':'boolean', 'required':False},
+    'order_group_id':{'type':'integer', 'required':False},
 }

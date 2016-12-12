@@ -40,7 +40,7 @@ export function validateAuth(token) {
 export function loginUserSuccess(token) {
     return function(dispatch,getState,wsclient){
         console.log(wsclient);
-        wsclient.connect();
+        wsclient.connect(token);
         dispatch(loginUserSuccessAction(token));
     }
 }
