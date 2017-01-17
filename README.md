@@ -18,17 +18,15 @@ Boilerplate application for a Flask JWT Backend and a React/Redux Front-End with
 
 ### Create DB
 ```sh
-$ export DATABASE_URL="postgresql://localhost/yourdb"
-$ python manage.py create_db
-$ python manage.py db init
-$ python manage.py db migrate
-$ python manage.py db upgrade
+$ alembic init
+$ alembic revision --autogenerate -m "init"
+$ alembic upgrade head
 ```
 
 ### Run Back-End
 
 ```sh
-$ python manage.py runserver
+$ python watcher.py
 ```
 
 ### Test Back-End
