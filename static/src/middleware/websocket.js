@@ -31,7 +31,7 @@ export default class WSClient{
             }
 
             this.websocket.onopen = (event) => {
-                console.log('websocket open');
+                console.log('websocket open',this.unsent.length);
                 this.reconnectAttempts = 0;
                 this.websocket.send(JSON.stringify({
                     'method':'identify',
@@ -39,8 +39,10 @@ export default class WSClient{
                         'token':token,
                     }
                 }));
-                while (this.unsent.size){
-                    this.websocket.send(unsent.shift());
+                while (this.unsent.length){
+                    let msg = this.unsent.shift();
+                    console.log(`sending ${msg}`);
+                    this.websocket.send(msg);
                 }
             }
 
@@ -63,7 +65,6 @@ export default class WSClient{
             console.log(`could not parse to json ${msg}`);
         }
         if (!!data && !!this.from_server_handler){
-            console.log(`should go to store ${msg}`);
             this.from_server_handler(data);
             
         }

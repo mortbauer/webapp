@@ -1,37 +1,49 @@
+import Immutable from 'immutable';
+
+var msgs = new Map();
 
 export function fromServerSync(store){
     return data => {
-        if (!!data.action){
-            //validate that propper action
-            console.log(`${Date.now()} dispatching action ${data.action.type}`);
-            store.dispatch(data.action);
+        if (data.id !== undefined){
+            console.log('got message with id',data);
+            if (data.result !== undefined){
+                store.dispatch({
+                    type: 'RPC_RESULT',
+                    payload: {
+                        result: data.result,
+                        resource: msgs.get(data.id)
+                    }
+                })
+            }
+            //store.dispatch(data.action);
         } else {
-            console.log('got message without action',data);
-            //store.dispatch({
-                //type:'transactions/GET_SUCCESS',
-                //payload:{
-                    //'data':data.data,
-                //}
-            //})
+            console.log('got message without id',data);
         }
     }
 }
 
 export function createMiddleware(to_server_handler){
+    let counter = 0
     return store => next => action => {
-        if (action.type == 'RPC'){
-            console.log(`syncer middlware on action: ${action.type}`);
-            to_server_handler(action.payload);
-        }
-        else if (action.type.endsWith('/PATCH')){
-            let data = {
-                'method':'PATCH',
-                'resource':action.type.substr(0,action.type.indexOf('/PATCH')),
-                'inst':action.payload.inst,
-                'id':action.payload.id,
+        if ((action.payload !== undefined) && (action.payload.rpc !== undefined) && (action.payload.resource !== undefined)){
+            msgs.set(counter.toString(),action.payload.resource)
+            action.payload.rpc.id = counter.toString()
+            if (action.payload.rpc.params === undefined){
+                action.payload.rpc.params = {}
             }
-            to_server_handler(data);
+            to_server_handler(action.payload.rpc);
         }
         return next(action);
+    }
+}
+
+export function rpcReducerEnhancer(reducer){
+    const initialState = reducer(undefined,{});
+
+    return function (state = initialState, action){
+        switch (action.type) {
+            case 'RPC_RESULT':
+
+        }
     }
 }
