@@ -41,6 +41,7 @@ sub = {
 
 rpc = {
     'method':{'type':'string', 'required':True},
+    'id':{'type':'string', 'required':True},
     'params':{'type':'dict', 'required':True},
 }
 

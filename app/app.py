@@ -4,7 +4,6 @@ import asyncio
 import aioredis
 import aiohttp_cors
 from aiohttp import web
-from .routes import router
 from . import endpoints
 from . import middleware
 from .auth import Authorization, Authentication, Bcrypt
@@ -36,7 +35,27 @@ redis_pool = loop.run_until_complete(aioredis.create_pool(
 authenticater = Authentication(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
 authorizer = Authorization(redis_pool,authenticater,expiration=config.TOKEN_EXPIRATION)
 
+
+from aiohttp.web_urldispatcher import UrlDispatcher
+
+from . import views_sync as views
+
+router = UrlDispatcher()
+
 app = web.Application(middlewares=[authorizer.aiohttp_middleware],router=router,**kwargs)
+
+users_resource = router.add_resource('/api/users', name='users')
+users_resource.add_route('GET',views.users_get)
+users_resource.add_route('POST',views.users_post)
+
+user_resource = router.add_resource('/api/user/{id}', name='user')
+user_resource.add_route('GET',views.user_get)
+
+router.add_route('POST','/api/get_token',views.get_token)
+router.add_route('POST','/api/is_token_valid',views.is_token_valid)
+router.add_route('GET','/api/ws',views.websocket_handler)
+
+
 
 app['settings'] = config
 app['engine'] = engine

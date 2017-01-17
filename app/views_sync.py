@@ -106,24 +106,30 @@ async def handle_sub(app,msg):
 async def handle_rpc(app,msg):
     v = Validator(schemas.rpc)
     if v.validate(msg):
-        print('rpc: {0}'.format(msg['method']))
         if msg['method'] in app['endpoints']:
             method = app['endpoints'][msg['method']]['method']
-            return await method(app,msg['params'])
+            try:
+                res = await method(app,msg['params'])
+                return {'id':msg['id'],'result':res} 
+            except Exception as e:
+                return {'id':msg['id'],'error':e} 
         else:
-            return {'errors':'no method %s'%msg['method']}
+            return {'id':msg['id'],'error':'no method %s'%msg['method']}
     else:
-        return {'errors':v.errors}
+        return {'error':v.errors}
 
 async def rpc_router_middleware(app,ws_id):
     async def middleware_handler(msg):
+        print('ws got {0}'.format(msg))
         msg_type = msg.pop('msg',None)
         if msg_type is None:
             return {'errors':['no msg']}
         elif msg_type == 'sub':
             return await handle_sub(app,msg)
         elif msg_type == 'rpc':
-            return await handle_rpc(app,msg)
+            res = await handle_rpc(app,msg)
+            res['msg'] = 'result'
+            return res 
         else:
             return {'errors':['msg %s unknown'%msg_type]}
     return middleware_handler
