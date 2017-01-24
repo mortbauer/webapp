@@ -16,3 +16,4 @@ pytest-cov
 aioredis
 watchdog
 click
+websocket-client

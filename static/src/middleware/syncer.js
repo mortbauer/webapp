@@ -1,23 +1,17 @@
 import Immutable from 'immutable';
 
-var msgs = new Map();
+var messages = new Map();
 
 export function fromServerSync(store){
     return data => {
-        if (data.id !== undefined){
-            console.log('got message with id',data);
-            if (data.result !== undefined){
-                store.dispatch({
-                    type: 'RPC_RESULT',
-                    payload: {
-                        result: data.result,
-                        resource: msgs.get(data.id)
-                    }
-                })
-            }
-            //store.dispatch(data.action);
+        if (data.msg !== undefined){
+            //handle ddp
+            store.dispatch({
+                type: 'DDP'.concat(data.msg),
+                payload: data
+            })
         } else {
-            console.log('got message without id',data);
+            console.log('got message without msg',data);
         }
     }
 }
@@ -25,8 +19,8 @@ export function fromServerSync(store){
 export function createMiddleware(to_server_handler){
     let counter = 0
     return store => next => action => {
-        if ((action.payload !== undefined) && (action.payload.rpc !== undefined) && (action.payload.resource !== undefined)){
-            msgs.set(counter.toString(),action.payload.resource)
+        if ((action.payload !== undefined) && (action.payload.rpc !== undefined)){
+            messages.set(counter.toString(),action.payload.callbackActionType)
             action.payload.rpc.id = counter.toString()
             if (action.payload.rpc.params === undefined){
                 action.payload.rpc.params = {}
@@ -37,13 +31,18 @@ export function createMiddleware(to_server_handler){
     }
 }
 
+//not used/needed for now but surely for other stuff
 export function rpcReducerEnhancer(reducer){
     const initialState = reducer(undefined,{});
 
     return function (state = initialState, action){
         switch (action.type) {
-            case 'RPC_RESULT':
-
+            case 'RPC_SUCCESS':
+                console.log('I am the RPC_SUCCESS reducer enhancer',state,action)
+                return state.setIn([action.payload.resource],action.payload.result)
+            default:
+                // Delegate handling the action to the passed reducer
+                return reducer(state, action)
         }
     }
 }

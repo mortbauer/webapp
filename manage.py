@@ -32,7 +32,6 @@ def runserver(with_gunicorn,production):
 @run.command()
 def create_example_data():
     from app import models
-    import requests
     with app['engine'].begin() as conn:
         with open('users.json','r') as f:
             ins = models.user.insert()
@@ -42,14 +41,20 @@ def create_example_data():
                 users.append(data)
             conn.execute(ins,users)
 
+@run.command()
+def create_example_transactions():
+    from app import models
+    transactions = []
+    with open('transaction.json','r') as f:
+        for data in json.loads(f.read()):
+            data['date'] = datetime.fromtimestamp(data['date'])
+            transactions.append(data)
     with app['engine'].begin() as conn:
-        with open('transaction.json','r') as f:
-            ins = models.transaction.insert()
-            transactions = []
-            for data in json.loads(f.read()):
-                data['date'] = datetime.fromtimestamp(data['date'])
-                transactions.append(data)
-            conn.execute(ins,transactions)
+        res = conn.execute(models.transaction.insert(),transactions)
+    with app['engine'].begin() as conn:
+        res = conn.execute(models.transaction.select())
+
+
 
 @run.command()
 def build():

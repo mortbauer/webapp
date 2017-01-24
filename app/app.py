@@ -59,6 +59,7 @@ router.add_route('GET','/api/ws',views.websocket_handler)
 
 app['settings'] = config
 app['engine'] = engine
+app['redis'] = redis_pool
 app['bcrypt'] = Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
 app['auth'] = authorizer
 app['acls'] = {
@@ -78,5 +79,10 @@ app['endpoints'] = {
         'transactions_patch':{'method':endpoints.transactions_patch,'acls':{'admin'}},
     }
 
+async def close_redis(app):
+    app['redis'].close()
+    await app['redis'].wait_closed()
+
+app.on_cleanup.append(close_redis)
 # loop.create_task(views.update_loop())
 # use package alcohol as inspiration for simple rbac

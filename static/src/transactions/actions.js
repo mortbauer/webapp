@@ -1,6 +1,7 @@
 import {
     PATCH,
     GET,
+    RECEIVE,
     FILTER_SET,
 } from './actionTypes'
 
@@ -9,7 +10,7 @@ export function loadTransactions(token){
     return {
         type: GET,
         payload: { 
-            resource: 'transactions', 
+            callbackActionType: RECEIVE, 
             rpc:{
                 msg: 'rpc',
                 method: 'transactions_get',
