@@ -7,8 +7,7 @@ import axiosMiddleware from 'redux-axios-middleware';
 
 import rootReducer from './rootReducer';
 import DevTools from './containers/DevTools';
-import WSClient from './middleware/websocket';
-import {createMiddleware, fromServerSync} from './middleware/syncer';
+import ddp from './ddp';
 
 
 const axiosClient = axios.create({
@@ -17,13 +16,17 @@ const axiosClient = axios.create({
 });
 
 //handling of ws and store should be just fine, see: http://stackoverflow.com/questions/31970675/where-do-long-running-processes-live-in-a-react-redux-application
-const wsclient = new WSClient('ws://localhost:5000/api/ws');
+const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws');
 
 const storeEnhancers = [
-    applyMiddleware(thunkMiddleware.withExtraArgument(wsclient),axiosMiddleware(axiosClient),createMiddleware(wsclient.createToServerHandler()))
+    applyMiddleware(
+        thunkMiddleware.withExtraArgument(wsclient),
+        axiosMiddleware(axiosClient),
+        ddp.createMiddleware(wsclient.createToServerHandler())
+    )
 ];
 
-if (process.env.NODE_ENV !== 'production') {
+if ((process.env.NODE_ENV !== 'production') && (false)) {
     storeEnhancers.push(DevTools.instrument());
     storeEnhancers.push(
         persistState(
@@ -40,7 +43,7 @@ export default function configureStore(initialState) {
         enhancer,
     );
 
-    wsclient.setFromServerHandler(fromServerSync(store));
+    wsclient.setStore(store);
 
     if (module.hot) {
         // Enable Webpack hot module replacement for reducers
@@ -48,7 +51,7 @@ export default function configureStore(initialState) {
             const nextRootReducer = require('./rootReducer').default;
             store.replaceReducer(nextRootReducer);
         });
-        module.hot.accept('./middleware/websocket', () => {
+        module.hot.accept('./ddp', () => {
             const nextRootReducer = require('./rootReducer').default;
             store.replaceReducer(nextRootReducer);
         });

@@ -10,10 +10,9 @@ export function loadTransactions(token){
     return {
         type: GET,
         payload: { 
-            callbackActionType: RECEIVE, 
-            rpc:{
-                msg: 'rpc',
-                method: 'transactions_get',
+            ddp:{
+                msg: 'sub',
+                name: 'transactions',
             }
         }
     }

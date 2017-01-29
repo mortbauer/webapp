@@ -35,8 +35,18 @@ user = {
     #},
 #}
 
+ddp = {
+    'id':{'type':'string', 'required':True},
+    'msg':{
+        'type':'string', 
+        'required':True, 
+        'allowed': ['connect','sub','method'],
+        },
+}
+
 sub = {
     'name':{'type':'string', 'required':True},
+    'id':{'type':'string', 'required':True},
 }
 
 rpc = {

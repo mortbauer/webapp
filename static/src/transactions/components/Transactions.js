@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Infinite from 'react-infinite';
+import Immutable from 'immutable';
 
 import * as actionCreators from '../actions';
 import { getVisibleTransactions } from '../selectors';
@@ -16,6 +17,7 @@ function mapStateToProps(state) {
         token: state.getIn(['auth','token']),
         filter: state.getIn(['transactions','filter']),
         isFetching: state.getIn(['transactions','isFetching']),
+        //transactions: Immutable.Map({}),
         transactions: getVisibleTransactions(state),
     }
 }

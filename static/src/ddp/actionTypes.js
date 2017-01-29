@@ -1,0 +1,19 @@
+export const CONNECT = "DDP/connect";
+export const CONNECTED = "DDP/connected";
+export const FAILED = "DDP/failed";
+export const PING = "DDP/PING";
+export const PONG = "DDP/pong";
+export const SUB = "DDP/sub";
+export const UNSUB = "DDP/unsub";
+export const NOSUB = "DDP/nosub";
+export const ADDED = "DDP/added";
+export const ADDEDMULTIPLE = "DDP/addedMultiple";
+export const CHANGED = "DDP/changed";
+export const REMOVED = "DDP/removed";
+export const READY = "DDP/ready";
+export const ADDEDBEFORE = "DDP/addedBefore";
+export const MOVEDBEFORE = "DDP/movedBefore";
+export const METHOD = "DDP/method";
+export const RESULT = "DDP/result";
+export const UPDATED = "DDP/updated";
+

@@ -1,13 +1,14 @@
 
+
 export default class WSClient{
-    constructor(url,reconnectDecay=1.5,reconnectInterval=2000,from_server_handler=null){
+    constructor(url,reconnectDecay=1.5,reconnectInterval=2000){
         this.url = url;
         this.reconnectInterval = reconnectInterval;
         this.reconnectDecay = reconnectDecay;
         this.reconnectAttempts = 0;
         this.connected = false;
         this.websocket = null;
-        this.from_server_handler = from_server_handler;
+        this.store = null;
         this.unsent = [];
     };
     connect(token){
@@ -34,6 +35,7 @@ export default class WSClient{
                 console.log('websocket open',this.unsent.length);
                 this.reconnectAttempts = 0;
                 this.websocket.send(JSON.stringify({
+                    'msg':'method',
                     'method':'identify',
                     'kwargs':{
                         'token':token,
@@ -64,8 +66,8 @@ export default class WSClient{
         }catch(err){
             console.log(`could not parse to json ${msg}`);
         }
-        if (!!data && !!this.from_server_handler){
-            this.from_server_handler(data);
+        if (!!data){
+            this.handleFromServer(data);
             
         }
     }
@@ -87,7 +89,19 @@ export default class WSClient{
             }
         } 
     }
-    setFromServerHandler(from_server_handler){
-        this.from_server_handler = from_server_handler;
+    setStore(store){
+        this.store = store;
     }
+    handleFromServer(data){
+        if (data.msg !== undefined){
+            //handle ddp
+            this.store.dispatch({
+                type: 'DDP/'.concat(data.msg),
+                payload: data
+            })
+        } else {
+            console.log('got message without msg',data);
+        }
+    }
+
 };

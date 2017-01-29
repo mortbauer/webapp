@@ -72,12 +72,17 @@ app['acls'] = {
 }
 app['session'] = {} # for now dict, later user redis
 app['ws'] = {}
-app['subscriptions'] = {}
+app['publications'] = {
+    'transactions':{
+        'method':endpoints.transactions_get,
+        'acls':{'user'},
+        'subscribers':set(),
+    },
+}
 app['updates'] = {}
 app['endpoints'] = {
-        'transactions_get':{'method':endpoints.transactions_get,'acls':{'user'}},
-        'transactions_patch':{'method':endpoints.transactions_patch,'acls':{'admin'}},
-    }
+    'transactions_patch':{'method':endpoints.transactions_patch,'acls':{'admin'}},
+}
 
 async def close_redis(app):
     app['redis'].close()

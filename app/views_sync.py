@@ -91,19 +91,20 @@ async def users_post(request):
     else:
         return jsonify(web.HTTPBadRequest,{'errors':validator.errors})
 
-async def handle_sub(app,msg):
-    v = Validator(schemas.sub)
+async def handle_sub(app,ws,ws_id,msg):
+    v = Validator(schemas.sub,allow_unknown=True)
     if v.validate(msg):
-        resource = msg['name']
-        if resource in app['subscriptions']:
-            app['subscriptions'][resource].add(ws_id)
-            return {'msg':'subscribed to %s'%resource}
+        if msg['name'] in app['publications']:
+            collection = app['publications'][msg['name']] 
+            collection['subscribers'].add(ws_id)
+            await collection['method'](app,ws)
+            return {'msg':'ready','subs':msg['id']}
         else:
-            return {'msg':'topic %s not available'%resource}
+            return {'msg':'topic %s not available'%collection}
     else:
         return {'errors':v.errors}
 
-async def handle_rpc(app,msg):
+async def handle_method(app,ws,msg):
     v = Validator(schemas.rpc)
     if v.validate(msg):
         if msg['method'] in app['endpoints']:
@@ -118,20 +119,19 @@ async def handle_rpc(app,msg):
     else:
         return {'error':v.errors}
 
-async def rpc_router_middleware(app,ws_id):
+async def ddp_middleware(app,ws,ws_id):
     async def middleware_handler(msg):
-        print('ws got {0}'.format(msg))
-        msg_type = msg.pop('msg',None)
-        if msg_type is None:
-            return {'errors':['no msg']}
-        elif msg_type == 'sub':
-            return await handle_sub(app,msg)
-        elif msg_type == 'rpc':
-            res = await handle_rpc(app,msg)
-            res['msg'] = 'result'
-            return res 
+        v = Validator(schemas.ddp,allow_unknown=True)
+        if v.validate(msg):
+            msg_type = msg['msg']
+            if msg_type == 'sub':
+                return await handle_sub(app,ws,ws_id,msg)
+            elif msg_type == 'method':
+                res = await handle_method(app,ws,msg)
+                res['msg'] = 'result'
+                return res 
         else:
-            return {'errors':['msg %s unknown'%msg_type]}
+            return {'msg':'error','errors':v.errors}
     return middleware_handler
     
 async def websocket_handler(request):
@@ -141,11 +141,12 @@ async def websocket_handler(request):
     token = None
     app = request.app
     ws_middlewares = []
-    handler = await rpc_router_middleware(app,ws_id)
+    handler = await ddp_middleware(app,ws,ws_id)
     for factory in ws_middlewares:
         handler = await factory(app,handler)
     async for msg in ws:
         if msg.tp == MsgType.text:
+            print('handling %s'%msg.data)
             result = await handler(json.loads(msg.data))
             if result is not None:
                 ws.send_str(json.dumps(result))
