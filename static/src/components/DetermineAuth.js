@@ -37,8 +37,7 @@ export function DetermineAuth(Component) {
 
         checkAuth(props = this.props) {
             if (!props.isAuthenticated) {
-                let token = localStorage.getItem('token')
-                if (token) {
+                if (props.token) {
                     return fetch('api/is_token_valid', {
                         method: 'post',
                         credentials: 'include',
@@ -46,11 +45,11 @@ export function DetermineAuth(Component) {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({token: token})
+                        body: JSON.stringify({token: props.token})
                     })
                         .then(res => {
                             if (res.status === 200) {
-                                this.props.loginUserSuccess(token)
+                                this.props.loginUserSuccess(props.token)
                                 this.setState({
                                     loaded_if_needed: true
                                 })

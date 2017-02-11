@@ -1,3 +1,4 @@
+import {REHYDRATE} from 'redux-persist/constants'
 import Immutable from 'immutable';
 import {createReducer} from '../utils/misc';
 import {
@@ -25,6 +26,13 @@ const initialState = Immutable.fromJS({
 });
 
 export default createReducer(initialState, {
+    [REHYDRATE]: (state,payload) => {
+        if (payload.auth) {
+            return state.set('token',payload.auth.get('token'));
+        } else {
+            return state
+        }
+    },
     [LOGIN_USER_REQUEST]: (state, payload) => {
         return state.merge({
             'isAuthenticating': true,

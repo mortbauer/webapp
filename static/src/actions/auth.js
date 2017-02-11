@@ -39,14 +39,13 @@ export function validateAuth(token) {
 
 export function loginUserSuccess(token) {
     return function(dispatch,getState,wsclient){
-        console.log(wsclient);
+        console.log('loginUserSuccess',wsclient);
         wsclient.connect(token);
         dispatch(loginUserSuccessAction(token));
     }
 }
 
 export function loginUserSuccessAction(token) {
-    localStorage.setItem('token', token);
     return {
         type: LOGIN_USER_SUCCESS,
         payload: {
@@ -57,7 +56,6 @@ export function loginUserSuccessAction(token) {
 
 
 export function loginUserFailure(error) {
-    localStorage.removeItem('token');
     browserHistory.push('/home')
     return {
         type: LOGIN_USER_FAILURE,
@@ -75,7 +73,6 @@ export function loginUserRequest() {
 }
 
 export function logout() {
-    localStorage.removeItem('token');
     return {
         type: LOGOUT_USER
     }
@@ -128,7 +125,6 @@ export function registerUserRequest() {
 }
 
 export function registerUserSuccess(token) {
-    localStorage.setItem('token', token);
     return {
         type: REGISTER_USER_SUCCESS,
         payload: {
@@ -138,7 +134,6 @@ export function registerUserSuccess(token) {
 }
 
 export function registerUserFailure(error) {
-    localStorage.removeItem('token');
     return {
         type: REGISTER_USER_FAILURE,
         payload: {

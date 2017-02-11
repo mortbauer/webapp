@@ -1,7 +1,8 @@
 import { createStore, applyMiddleware, compose} from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
-import { persistState} from 'redux-devtools';
+//import { persistState} from 'redux-devtools';
+import {persistStore, autoRehydrate} from 'redux-persist-immutable'
 import axios from 'axios';
 import axiosMiddleware from 'redux-axios-middleware';
 
@@ -18,20 +19,22 @@ const axiosClient = axios.create({
 //handling of ws and store should be just fine, see: http://stackoverflow.com/questions/31970675/where-do-long-running-processes-live-in-a-react-redux-application
 const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws');
 
+// add `autoRehydrate` as an enhancer to your store (note: `autoRehydrate` is not a middleware)
 const storeEnhancers = [
     applyMiddleware(
         thunkMiddleware.withExtraArgument(wsclient),
         axiosMiddleware(axiosClient),
         ddp.createMiddleware(wsclient.createToServerHandler())
-    )
+    ),
+    autoRehydrate({log:true})
 ];
 
-if ((process.env.NODE_ENV !== 'production') && (false)) {
+if ((process.env.NODE_ENV !== 'production') && true) {
     storeEnhancers.push(DevTools.instrument());
-    storeEnhancers.push(
-        persistState(
-          window.location.href.match(/[?&]debug_session=([^&]+)\b/)
-        ));
+    //storeEnhancers.push(
+        //persistState(
+          //window.location.href.match(/[?&]debug_session=([^&]+)\b/)
+        //));
 };
 
 const enhancer = compose(...storeEnhancers);
@@ -42,6 +45,11 @@ export default function configureStore(initialState) {
         initialState,
         enhancer,
     );
+
+    // begin periodically persisting the store
+    persistStore(store,{
+        blacklist:['router','lastAction']
+    });
 
     wsclient.setStore(store);
 

@@ -32,11 +32,10 @@ export function requireAuthentication(Component) {
 
         checkAuth(props = this.props) {
             if (!props.isAuthenticated) {
-                let token = localStorage.getItem('token')
-                if (!token){
+                if (!props.token){
                     browserHistory.push('/home')
                 } else {
-                    this.props.validateAuth(token)
+                    this.props.validateAuth(props.token)
                 }
             } 
         }

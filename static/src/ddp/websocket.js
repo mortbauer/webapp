@@ -1,3 +1,7 @@
+import Immutable from 'immutable';
+
+var ingoing = new Map();
+var outgoing = new Map();
 
 
 export default class WSClient{
@@ -9,7 +13,6 @@ export default class WSClient{
         this.connected = false;
         this.websocket = null;
         this.store = null;
-        this.unsent = [];
     };
     connect(token){
         console.log(`connecting to: ${this.url}`);
@@ -32,7 +35,6 @@ export default class WSClient{
             }
 
             this.websocket.onopen = (event) => {
-                console.log('websocket open',this.unsent.length);
                 this.reconnectAttempts = 0;
                 this.websocket.send(JSON.stringify({
                     'msg':'method',
@@ -41,11 +43,6 @@ export default class WSClient{
                         'token':token,
                     }
                 }));
-                while (this.unsent.length){
-                    let msg = this.unsent.shift();
-                    console.log(`sending ${msg}`);
-                    this.websocket.send(msg);
-                }
             }
 
             this.websocket.onclose = (event) => {
@@ -80,27 +77,32 @@ export default class WSClient{
                 console.log(`could not stringify to json ${data}`);
             }
             console.log(`to server handler sending ${msg}`);
-            if (ws.websocket.readyState){
+            if (!!ws.websocket && ws.websocket.readyState){
                 ws.websocket.send(msg);
             }
             else {
                 console.log('websocket not ready yet');
-                ws.unsent.push(msg);
+                //ws.unsent.push(msg);
             }
         } 
     }
     setStore(store){
         this.store = store;
     }
-    handleFromServer(data){
-        if (data.msg !== undefined){
+    handleFromServer(msg){
+        if (msg.msg !== undefined){
+            switch (msg.msg){
+                case 'added':
+                    ingoing.set(String([msg.collection,msg.id]),msg.fields);
+            }
+
             //handle ddp
-            this.store.dispatch({
-                type: 'DDP/'.concat(data.msg),
-                payload: data
-            })
+            //this.store.dispatch({
+                //type: 'DDP/'.concat(data.msg),
+                //payload: data
+            //})
         } else {
-            console.log('got message without msg',data);
+            console.log('got message without msg',msg);
         }
     }
 

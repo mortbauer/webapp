@@ -25,6 +25,7 @@ const createSelectLocationState = () => {
 
 const store = configureStore();
 window.store = store;
+
 const history = syncHistoryWithStore(browserHistory, store, {
     selectLocationState: createSelectLocationState()
 });

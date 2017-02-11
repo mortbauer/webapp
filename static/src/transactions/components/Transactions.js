@@ -39,13 +39,9 @@ export default class Transactions extends React.Component {
     }
 
     componentDidMount() {
-        this.fetchTransactions();
+        this.props.loadTransactions();
     }
 
-
-    fetchTransactions() {
-        this.props.loadTransactions(this.props.token);
-    }
 
     editOrderGroup(id,value){
         this.props.editOrderGroup(id,value);

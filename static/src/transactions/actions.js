@@ -5,8 +5,12 @@ import {
     FILTER_SET,
 } from './actionTypes'
 
+import {storageAvailable} from '../utils/browser_support'
 
-export function loadTransactions(token){
+export function loadTransactions(){
+    //if (storageAvailable('localStorage') && localStorage.getItem('transactions')){
+        //console.log('transactions in localStorage');
+    //}
     return {
         type: GET,
         payload: { 
