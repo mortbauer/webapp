@@ -29,7 +29,8 @@ const storeEnhancers = [
     autoRehydrate({log:true})
 ];
 
-if ((process.env.NODE_ENV !== 'production') && true) {
+if ((process.env.NODE_ENV !== 'production')) {
+    console.log('development mode');
     storeEnhancers.push(DevTools.instrument());
     //storeEnhancers.push(
         //persistState(

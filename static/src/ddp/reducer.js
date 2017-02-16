@@ -21,7 +21,8 @@ export default function reducer(state, action) {
     switch (action.type) {
         case MERGE:
             for (let key of action.payload.data.keys()){
-                if (!state.hasIn([action.payload.collection,'data',key])){
+                if ((!state.hasIn([action.payload.collection,'data',key])) || 
+                    (state.getIn([action.payload.collection,'data',key,'id']))){
                     state = state.setIn([action.payload.collection,'data',key],action.payload.data.get(key));
                     action.payload.data.delete(key);
                 }

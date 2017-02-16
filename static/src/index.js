@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import ReactDOM from 'react-dom';
 import { browserHistory } from 'react-router'
 import { syncHistoryWithStore } from 'react-router-redux'
 import injectTapEventPlugin from 'react-tap-event-plugin';
@@ -30,7 +30,7 @@ const history = syncHistoryWithStore(browserHistory, store, {
     selectLocationState: createSelectLocationState()
 });
 
-render(
+ReactDOM.render(
     <MuiThemeProvider>
         <Root store={store} history={history}/>
     </MuiThemeProvider>,

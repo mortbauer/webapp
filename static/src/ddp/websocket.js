@@ -10,8 +10,17 @@ var outgoing = new Map();
 window.incoming = incoming;
 window.outgoing = outgoing;
 
-var ddpaction = debounce((store,msg,collection)=>{
-    store.dispatch({'type':msg,'payload':{data:incoming.get(collection),'collection':collection}})},100);
+//var ddpaction = debounce((store,msg,collection)=>{
+    //store.dispatch({'type':msg,'payload':{data:incoming.get(collection),'collection':collection}})},100);
+var ddpaction = (store,msg,collection)=>{
+    store.dispatch({
+        'type':msg,
+        'payload':{
+            'data':incoming.get(collection),
+            'collection':collection,
+        },
+    })
+};
 
 export default class WSClient{
     constructor(url,reconnectDecay=1.5,reconnectInterval=2000){
@@ -111,7 +120,7 @@ export default class WSClient{
                     }
                     incoming.get(msg.collection).set(
                         msg.id,Immutable.fromJS(msg.fields));
-                    ddpaction(this.store,MERGE,msg.collection);
+                    //ddpaction(this.store,MERGE,msg.collection);
             }
         } else {
             console.log('got message without msg',msg);

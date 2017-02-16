@@ -9,7 +9,7 @@ import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import Divider from 'material-ui/Divider';
-import listensToClickOutside from 'react-onclickoutside/decorator';
+import onClickOutside from 'react-onclickoutside-decorator';
 import { routeActions } from 'react-router-redux'
 import { browserHistory } from 'react-router'
 
@@ -27,7 +27,7 @@ function mapDispatchToProps(dispatch) {
 };
 
 @connect(mapStateToProps, mapDispatchToProps)
-@listensToClickOutside()
+@onClickOutside
 export class Header extends Component {
     constructor(props) {
         super(props);
