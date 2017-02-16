@@ -25,6 +25,7 @@ transaction = sa.Table(
     'transactions',
     metadata,
     sa.Column('id', sa.Integer, primary_key=True),
+    sa.Column('version',sa.Integer, nullable=False),
     sa.Column('our_iban',sa.String(255), nullable=False),
     sa.Column('date',sa.Date(), nullable=False),
     sa.Column('bic_blz',sa.String(25)),

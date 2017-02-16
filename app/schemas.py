@@ -57,6 +57,7 @@ rpc = {
 
 transaction = {
     'id':{'type':'string', 'required':True},
+    'version':{'type':'integer', 'required':False},
     'our_iban':{'type':'string', 'required':True},
     'date':{'type':'date', 'required':True},
     'bic_blz':{'type':'string', 'required':False},

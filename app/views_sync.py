@@ -97,7 +97,7 @@ async def handle_sub(app,ws,ws_id,msg):
         if msg['name'] in app['publications']:
             collection = app['publications'][msg['name']] 
             collection['subscribers'].add(ws_id)
-            await collection['method'](app,ws)
+            await collection['method'](app,ws,**msg.get('params',{}))
             return {'msg':'ready','subs':msg['id']}
         else:
             return {'msg':'topic %s not available'%collection}

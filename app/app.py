@@ -4,9 +4,11 @@ import asyncio
 import aioredis
 import aiohttp_cors
 from aiohttp import web
+from aiohttp.web_urldispatcher import UrlDispatcher
 from . import endpoints
 from . import middleware
 from .auth import Authorization, Authentication, Bcrypt
+from . import views_sync as views
 
 basedir = os.path.dirname(
         os.path.abspath(os.path.dirname(__file__)))
@@ -29,16 +31,8 @@ else:
     engine = loop.run_until_complete(create_engine(config.DATABASE_URI, loop=loop))
     kwargs = {}
 
-redis_pool = loop.run_until_complete(aioredis.create_pool(
-    (config.REDIS_HOST,config.REDIS_PORT)))
-
 authenticater = Authentication(secret_key=config.SECRET_KEY,expiration=config.TOKEN_EXPIRATION)
-authorizer = Authorization(redis_pool,authenticater,expiration=config.TOKEN_EXPIRATION)
-
-
-from aiohttp.web_urldispatcher import UrlDispatcher
-
-from . import views_sync as views
+authorizer = Authorization(authenticater,expiration=config.TOKEN_EXPIRATION)
 
 router = UrlDispatcher()
 
@@ -59,7 +53,6 @@ router.add_route('GET','/api/ws',views.websocket_handler)
 
 app['settings'] = config
 app['engine'] = engine
-app['redis'] = redis_pool
 app['bcrypt'] = Bcrypt(log_rounds=config.BCRYPT_LOG_ROUNDS,prefix=config.BCRYPT_HASH_PREFIX)
 app['auth'] = authorizer
 app['acls'] = {
@@ -84,10 +77,17 @@ app['endpoints'] = {
     'transactions_patch':{'method':endpoints.transactions_patch,'acls':{'admin'}},
 }
 
+async def init_app(app):
+    redis_pool = await aioredis.create_pool(
+            (config.REDIS_HOST,config.REDIS_PORT))
+    app['redis'] = redis_pool
+    app['auth'].init(redis_pool)
+
 async def close_redis(app):
     app['redis'].close()
     await app['redis'].wait_closed()
 
+app.on_startup.append(init_app)
 app.on_cleanup.append(close_redis)
 # loop.create_task(views.update_loop())
 # use package alcohol as inspiration for simple rbac

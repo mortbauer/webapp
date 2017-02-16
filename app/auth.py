@@ -56,10 +56,13 @@ class Authentication:
         return data
 
 class Authorization:
-    def __init__(self,redis_pool,authenticater,expiration):
+    def __init__(self,authenticater,expiration,redis_pool=None):
         self.authenticater = authenticater
         self.pool = redis_pool
         self.expiration_time = expiration
+
+    def init(self,redis_pool):
+        self.pool = redis_pool
 
     async def get_user_roles(self,user_id):
         key = 'user_roles::%s'%user_id
