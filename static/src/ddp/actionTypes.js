@@ -1,3 +1,4 @@
+export const MERGE = "DDP/merge";
 export const CONNECT = "DDP/connect";
 export const CONNECTED = "DDP/connected";
 export const FAILED = "DDP/failed";

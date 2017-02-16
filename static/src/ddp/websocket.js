@@ -1,8 +1,17 @@
+import debounce from 'debounce';
 import Immutable from 'immutable';
 
-var ingoing = new Map();
+import {MERGE} from './actionTypes';
+
+var unsent = [];
+var incoming = new Map();
 var outgoing = new Map();
 
+window.incoming = incoming;
+window.outgoing = outgoing;
+
+var ddpaction = debounce((store,msg,collection)=>{
+    store.dispatch({'type':msg,'payload':{data:incoming.get(collection),'collection':collection}})},100);
 
 export default class WSClient{
     constructor(url,reconnectDecay=1.5,reconnectInterval=2000){
@@ -43,6 +52,9 @@ export default class WSClient{
                         'token':token,
                     }
                 }));
+                while (unsent.length){
+                    this.websocket.send(unsent.shift());
+                };
             }
 
             this.websocket.onclose = (event) => {
@@ -82,25 +94,25 @@ export default class WSClient{
             }
             else {
                 console.log('websocket not ready yet');
-                //ws.unsent.push(msg);
+                unsent.push(msg);
             }
         } 
     }
     setStore(store){
         this.store = store;
     }
+
     handleFromServer(msg){
         if (msg.msg !== undefined){
             switch (msg.msg){
                 case 'added':
-                    ingoing.set(String([msg.collection,msg.id]),msg.fields);
+                    if (!incoming.has(msg.collection)){
+                        incoming.set(msg.collection,new Map());
+                    }
+                    incoming.get(msg.collection).set(
+                        msg.id,Immutable.fromJS(msg.fields));
+                    ddpaction(this.store,MERGE,msg.collection);
             }
-
-            //handle ddp
-            //this.store.dispatch({
-                //type: 'DDP/'.concat(data.msg),
-                //payload: data
-            //})
         } else {
             console.log('got message without msg',msg);
         }

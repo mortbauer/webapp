@@ -48,6 +48,7 @@ def create_example_transactions():
     with open('transaction.json','r') as f:
         for data in json.loads(f.read()):
             data['date'] = datetime.fromtimestamp(data['date'])
+            data['version'] = 0
             transactions.append(data)
     with app['engine'].begin() as conn:
         res = conn.execute(models.transaction.insert(),transactions)
