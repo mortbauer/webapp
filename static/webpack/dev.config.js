@@ -1,12 +1,18 @@
 const webpack = require('webpack');
+const webpackMerge = require('webpack-merge');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-module.exports = {
+const commonConfig = require('./common.config.js');
+
+var hotMiddlewareScript = 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true';
+
+process.env.BABEL_ENV = 'dev';
+
+module.exports = webpackMerge(commonConfig,{
   devtool: 'eval-source-map',
-  entry: [
-    'webpack-hot-middleware/client',
-    './src/index',
-  ],
+  entry: {
+    client: ['./src/index.js',hotMiddlewareScript],
+  },
   output: {
     publicPath: '/dist/',
   },
@@ -30,12 +36,7 @@ module.exports = {
       },
       __DEVELOPMENT__: true,
     }),
-    //new ExtractTextPlugin('bundle.css'),
-    //new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    //new webpack.NoErrorsPlugin(),
-    new webpack.ProvidePlugin({
-      jQuery: 'jquery',
-    }),
+    new webpack.NoEmitOnErrorsPlugin(),
   ],
-};
+});

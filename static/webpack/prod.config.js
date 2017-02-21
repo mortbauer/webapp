@@ -1,7 +1,10 @@
 const webpack = require('webpack');
+const webpackMerge = require('webpack-merge');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-module.exports = {
+const commonConfig = require('./common.config.js');
+
+module.exports = webpackMerge(commonConfig,{
   devtool: 'source-map',
 
   target: 'web',
@@ -27,12 +30,10 @@ module.exports = {
       },
       __DEVELOPMENT__: false,
     }),
-    //new ExtractTextPlugin('bundle.css'),
-    //new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false,
       },
     }),
   ],
-};
+});

@@ -1,21 +1,14 @@
 const path = require('path');
 const autoprefixer = require('autoprefixer');
-const merge = require('webpack-merge');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-const development = require('./dev.config.js');
-const production = require('./prod.config.js');
-
 require('babel-polyfill').default;
-
-const TARGET = process.env.npm_lifecycle_event;
 
 const PATHS = {
   app: path.join(__dirname, '../src'),
   build: path.join(__dirname, '../dist'),
 };
 
-process.env.BABEL_ENV = TARGET;
 
 const common = {
   entry: PATHS.app,
@@ -69,17 +62,11 @@ const common = {
               loader: 'file-loader?name=[name].[ext]',
             },{
               test: /\.css$/,
-              use: ['style-loader', 'css-loader?importLoaders=1', 'postcss-loader'],
+                use: ['style-loader','css-loader?importLoaders=1','postcss-loader'],
             },
       ],
   },
 
 };
 
-if (TARGET === 'start' || !TARGET) {
-  module.exports = merge(development, common);
-}
-
-if (TARGET === 'build' || !TARGET) {
-  module.exports = merge(production, common);
-}
+module.exports = common;

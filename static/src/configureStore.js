@@ -32,10 +32,6 @@ const storeEnhancers = [
 if ((process.env.NODE_ENV !== 'production')) {
     console.log('development mode');
     storeEnhancers.push(DevTools.instrument());
-    //storeEnhancers.push(
-        //persistState(
-          //window.location.href.match(/[?&]debug_session=([^&]+)\b/)
-        //));
 };
 
 const enhancer = compose(...storeEnhancers);

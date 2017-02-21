@@ -4,7 +4,7 @@
     ["transform-decorators-legacy"]
   ],
   "env": {
-    "start": {
+    "dev": {
       "presets": ["react-hmre"]
     }
   }
