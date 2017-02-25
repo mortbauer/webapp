@@ -9,6 +9,7 @@ import {
 
 const initialState = Immutable.fromJS({
     data: {},
+    sort_by: 'id',
     filter: {
         comment: '',
         date: null,
@@ -25,7 +26,12 @@ export default function reducer(state = initialState, action) {
                 isFetching: true,
             })
         case PATCH:
-            return state.setIn(['data',action.payload.id,action.payload.inst.field],action.payload.inst.value)
+            switch (action.payload.desc.op){
+                case 'replace':
+                    return state.setIn(['data',action.payload.id,action.payload.desc.field],action.payload.desc.value)
+                default:
+                    return state
+            }
         case FILTER_SET:
             return state.setIn(['filter',action.payload.field],action.payload.value)
         default:

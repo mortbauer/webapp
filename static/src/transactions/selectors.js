@@ -4,6 +4,8 @@ const getComment = (state, props) => state.getIn(['transactions','filter','comme
 
 const getDate = (state, props) => state.getIn(['transactions','filter','date'])
 
+const getSortField = (state, props) => state.getIn(['transactions','sort_by'])
+
 const getAmount = (state, props) => state.getIn(['transactions','filter','amount'])
 
 export const getTransactions = (state) => state.getIn(['transactions','data'])
@@ -41,5 +43,13 @@ export const getVisibleTransactions = createSelector(
       else{
           return transactions
       }
+  }
+)
+
+
+export const getSortedTransactions = createSelector(
+    [ getSortField, getVisibleTransactions ],
+  (sorted_by, transactions) => {
+      return transactions.sortBy(t => t.get(sorted_by)).toArray()
   }
 )

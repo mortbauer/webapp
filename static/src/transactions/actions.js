@@ -8,9 +8,6 @@ import {
 import {storageAvailable} from '../utils/browser_support'
 
 export function loadTransactions(){
-    //if (storageAvailable('localStorage') && localStorage.getItem('transactions')){
-        //console.log('transactions in localStorage');
-    //}
     return {
         type: GET,
         payload: { 
@@ -21,6 +18,7 @@ export function loadTransactions(){
         }
     }
 }
+
         
 export function setFilter(field,value) {
     return {
@@ -34,11 +32,12 @@ export function setFilter(field,value) {
 
 export function editOrderGroup(id,value) {
     return {
-        type: PATCH,
-        payload: {
-            'inst': {'op':'replace','field':'order_group_id','value': value},
-            'id': id
-        }
+        type: 'PATCH',
+        collection:'transactions',
+        op:'replace',
+        field:'order_group_id',
+        value: value,
+        id: id,
     }
 }
 

@@ -7,7 +7,7 @@ import Infinite from 'react-infinite';
 import Immutable from 'immutable';
 
 import * as actionCreators from '../actions';
-import { getVisibleTransactions } from '../selectors';
+import { getSortedTransactions } from '../selectors';
 
 import { Transaction, EditTransaction} from './Transaction';
 import DebouncedInput from './DebouncedInput';
@@ -18,7 +18,7 @@ function mapStateToProps(state) {
         filter: state.getIn(['transactions','filter']),
         isFetching: state.getIn(['transactions','isFetching']),
         //transactions: Immutable.Map({}),
-        transactions: getVisibleTransactions(state),
+        transactions: getSortedTransactions(state),
     }
 }
 
@@ -54,11 +54,11 @@ export default class Transactions extends React.Component {
     renderTransactions(){
         if (!this.state.is_editing){
             return this.props.transactions.map(
-                t => <Transaction key={t.get('id')} data={t}/>).toArray()
+                t => <Transaction key={t.get('id')} data={t}/>)
         }
         else {
             return this.props.transactions.map(
-                t => <EditTransaction key={t.get('id')} onChange={(v)=>this.editOrderGroup(t.get('id'),v)} data={t}/>).toArray()
+                t => <EditTransaction key={t.get('id')} onChange={(v)=>this.editOrderGroup(t.get('id'),v)} data={t}/>)
         }
     }
 
