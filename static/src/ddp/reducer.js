@@ -20,13 +20,22 @@ import {
 export default function reducer(state, action) {
     switch (action.type) {
         case MERGE:
-            let needs_merge = Immutable.List();
+            let incoming_unmerged = Immutable.List();
             return action.msgs.reduce((state,msg)=>{
+                let new_data = Immutable.fromJS(msg.fields)
                 if (!state.hasIn([msg.collection,'data',msg.id])){
-                    return state.setIn([msg.collection,'data',msg.id],Immutable.fromJS(msg.fields))
+                    return state.setIn([msg.collection,'data',msg.id],new_data)
                 } else
                 {
-                    return state.set('needs_merge',state.get('needs_merge',needs_merge).push(msg))
+                    let cur_data = state.getIn([msg.collection,'data',msg.id])
+                    if (cur_data.hashCode() != new_data.hashCode()){
+                        return state.set(
+                            'incoming_unmerged',state.get(
+                                'incoming_unmerged',incoming_unmerged).push(
+                                    [msg.collection,msg.id,new_data]))
+                    } else {
+                        return state
+                    }
                 }
             },state)
         case CONNECTED:
