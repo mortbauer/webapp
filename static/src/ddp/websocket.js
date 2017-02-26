@@ -4,15 +4,11 @@ import Immutable from 'immutable';
 import {MERGE} from './actionTypes';
 
 var unsent = [];
-var incoming = new Map();
 var outgoing = new Map();
 
-window.incoming = incoming;
 window.outgoing = outgoing;
 
-//var ddpaction = debounce((store,msg,collection)=>{
-    //store.dispatch({'type':msg,'payload':{data:incoming.get(collection),'collection':collection}})},100);
-var ddpaction = (store,msg,collection)=>{
+var merge_action = (store,msg,collection)=>{
     store.dispatch({
         'type':msg,
         'payload':{
@@ -21,6 +17,8 @@ var ddpaction = (store,msg,collection)=>{
         },
     })
 };
+
+var ddpaction = debounce(merge_action,200);
 
 export default class WSClient{
     constructor(url,reconnectDecay=1.5,reconnectInterval=2000){
@@ -31,6 +29,8 @@ export default class WSClient{
         this.connected = false;
         this.websocket = null;
         this.store = null;
+        this.incoming = [];
+        window.incoming = this.incoming;
     };
     connect(token){
         console.log(`connecting to: ${this.url}`);
@@ -111,16 +111,20 @@ export default class WSClient{
         this.store = store;
     }
 
+    merge = debounce(function(){
+        this.store.dispatch({
+            type:MERGE,
+            msgs:this.incoming,
+        }),
+        this.incoming.length=0;
+    },200)
+
     handleFromServer(msg){
         if (msg.msg !== undefined){
             switch (msg.msg){
                 case 'added':
-                    if (!incoming.has(msg.collection)){
-                        incoming.set(msg.collection,new Map());
-                    }
-                    incoming.get(msg.collection).set(
-                        msg.id,Immutable.fromJS(msg.fields));
-                    //ddpaction(this.store,MERGE,msg.collection);
+                    this.incoming.push(msg);
+                    this.merge()
             }
         } else {
             console.log('got message without msg',msg);

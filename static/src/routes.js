@@ -7,6 +7,7 @@ import { HomeContainer } from 'containers/HomeContainer';
 import LoginView from 'components/LoginView'
 import RegisterView from 'components/RegisterView'
 import NotFound from 'components/NotFound'
+import TestView from 'components/TestView'
 import {Transactions} from './transactions/components';
 
 import {DetermineAuth} from 'components/DetermineAuth';
@@ -18,6 +19,7 @@ export default (
         <Route path="transactions" component={requireAuthentication(Transactions)}/>
         <Route path="main" component={requireAuthentication(Transactions)}/>
         <Route path="login" component={requireNoAuthentication(LoginView)}/>
+        <Route path="test" component={DetermineAuth(TestView)}/>
         <Route path="register" component={requireNoAuthentication(RegisterView)}/>
         <Route path="home" component={requireNoAuthentication(HomeContainer)}/>
         <Route path="*" component={DetermineAuth(NotFound)}/>

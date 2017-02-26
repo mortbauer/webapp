@@ -32,7 +32,7 @@ export function setFilter(field,value) {
 
 export function editOrderGroup(id,value) {
     return {
-        type: 'PATCH',
+        type: PATCH,
         collection:'transactions',
         op:'replace',
         field:'order_group_id',

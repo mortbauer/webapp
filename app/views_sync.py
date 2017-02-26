@@ -136,6 +136,7 @@ async def ddp_middleware(app,ws,ws_id):
     
 async def websocket_handler(request):
     ws = web.WebSocketResponse()
+    print('got a websocket request')
     await ws.prepare(request)
     ws_id = uuid.uuid1()
     token = None

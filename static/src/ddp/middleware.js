@@ -1,6 +1,8 @@
+import Immutable from 'immutable';
+
 var messages = new Map();
 
-export default function createMiddleware(to_server_handler){
+export function createMiddleware(to_server_handler){
     let counter = 0
     return store => next => action => {
         if ((action.payload !== undefined) && (action.payload.ddp !== undefined)){
@@ -10,13 +12,17 @@ export default function createMiddleware(to_server_handler){
             action.payload.ddp.id = counter.toString()
             to_server_handler(action.payload.ddp);
         }
+        if (action.type == 'PATCH'){
+            let {type,...params} = action;
+            to_server_handler({msg:'method',method:type.toLowerCase(),params});
+        }
         return next(action);
     }
 }
 
 //not used/needed for now but surely for other stuff
-export function rpcReducerEnhancer(reducer){
-    const initialState = reducer(undefined,{});
+export function reducerEnhancer(reducer){
+    const initialState = reducer(undefined,{}).set('not_synced',Immutable.Map());
 
     return function (state = initialState, action){
         switch (action.type) {

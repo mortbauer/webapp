@@ -80,11 +80,17 @@ export class Header extends Component {
                                 <MenuItem onClick={() => this.dispatchNewRoute('/register')}>
                                     Register
                                 </MenuItem>
+                                <MenuItem onClick={(e) =>  this.dispatchNewRoute('/test')}>
+                                    Test
+                                </MenuItem>
                             </div>
                             :
                             <div>
                                 <MenuItem onClick={(e) =>  this.dispatchNewRoute('/transactions')}>
                                     Transactions
+                                </MenuItem>
+                                <MenuItem onClick={(e) =>  this.dispatchNewRoute('/test')}>
+                                    Test
                                 </MenuItem>
                                 <Divider />
                                 <MenuItem onClick={(e) => this.logout(e)}>

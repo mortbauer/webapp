@@ -42,9 +42,10 @@ export default function configureStore(initialState) {
         initialState,
         enhancer,
     );
+    window.store = store;
 
     // begin periodically persisting the store
-    persistStore(store,{
+    window.persistor = persistStore(store,{
         blacklist:['router','lastAction']
     });
 

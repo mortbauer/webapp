@@ -26,9 +26,11 @@ export default function reducer(state = initialState, action) {
                 isFetching: true,
             })
         case PATCH:
-            switch (action.payload.desc.op){
+            switch (action.op){
                 case 'replace':
-                    return state.setIn(['data',action.payload.id,action.payload.desc.field],action.payload.desc.value)
+                    console.log(action.id,action.field,action.value)
+                    console.log(state.getIn(['data',action.id]).toString())
+                    return state.setIn(['data',action.id,action.field],action.value)
                 default:
                     return state
             }

@@ -20,14 +20,15 @@ import {
 export default function reducer(state, action) {
     switch (action.type) {
         case MERGE:
-            for (let key of action.payload.data.keys()){
-                if ((!state.hasIn([action.payload.collection,'data',key])) || 
-                    (state.getIn([action.payload.collection,'data',key,'id']))){
-                    state = state.setIn([action.payload.collection,'data',key],action.payload.data.get(key));
-                    action.payload.data.delete(key);
+            let needs_merge = Immutable.List();
+            return action.msgs.reduce((state,msg)=>{
+                if (!state.hasIn([msg.collection,'data',msg.id])){
+                    return state.setIn([msg.collection,'data',msg.id],Immutable.fromJS(msg.fields))
+                } else
+                {
+                    return state.set('needs_merge',state.get('needs_merge',needs_merge).push(msg))
                 }
-            }
-            return state
+            },state)
         case CONNECTED:
             return state.setIn(['ddp','session'],action.payload.session)
         case FAILED:

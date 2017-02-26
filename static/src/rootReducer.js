@@ -13,7 +13,7 @@ function lastAction(state = null, action) {
 const rootReducer = reduceReducers(ddp.reducer,combineReducers({
     router,
     auth,
-    [transactions.constants.NAME]: transactions.reducer,
+    [transactions.constants.NAME]: ddp.reducerEnhancer(transactions.reducer),
     lastAction,
 }));
 

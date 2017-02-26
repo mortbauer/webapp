@@ -1,3 +1,4 @@
+const csp = require(`helmet-csp`)
 const http = require('http');
 const express = require('express');
 const httpProxy = require('http-proxy');
@@ -12,11 +13,6 @@ var proxy = httpProxy.createProxyServer({});
 var app = express();
 
 app.use(require('morgan')('short'));
-
-app.use(function(req,res,next){
-  res.setHeader("Content-Security-Policy", "connect-src 'self'");
-  next();
-});
 
 app.use(require('webpack-dev-middleware')(compiler, {
     noInfo: false, publicPath: webpackConfig.output.publicPath,
