@@ -8,7 +8,7 @@ import LoginView from 'components/LoginView'
 import RegisterView from 'components/RegisterView'
 import NotFound from 'components/NotFound'
 import TestView from 'components/TestView'
-import {Transactions} from './transactions/components';
+import foodcoop from './foodcoop';
 
 import {DetermineAuth} from 'components/DetermineAuth';
 import {requireAuthentication} from 'components/AuthenticatedComponent';
@@ -16,8 +16,8 @@ import {requireNoAuthentication} from 'components/notAuthenticatedComponent';
 
 export default (
     <Route path="/" component={App}>
-        <Route path="transactions" component={requireAuthentication(Transactions)}/>
-        <Route path="main" component={requireAuthentication(Transactions)}/>
+        <Route path="transactions" component={requireAuthentication(foodcoop.components.Transactions)}/>
+        <Route path="main" component={requireAuthentication(foodcoop.components.Transactions)}/>
         <Route path="login" component={requireNoAuthentication(LoginView)}/>
         <Route path="test" component={DetermineAuth(TestView)}/>
         <Route path="register" component={requireNoAuthentication(RegisterView)}/>

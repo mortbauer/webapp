@@ -1,14 +1,18 @@
 import { createSelector } from 'reselect'
 
-const getComment = (state, props) => state.getIn(['transactions','filter','comment'])
+const getComment = (state, props) => state.getIn(['foodcoop','transactions_view','filter','comment'])
 
-const getDate = (state, props) => state.getIn(['transactions','filter','date'])
+const getDate = (state, props) => state.getIn(['foodcoop','transactions_view','filter','date'])
 
-const getSortField = (state, props) => state.getIn(['transactions','sort_by'])
+const getSortField = (state, props) => state.getIn(['foodcoop','transactions_view','sort_by'])
 
-const getAmount = (state, props) => state.getIn(['transactions','filter','amount'])
+const getAmount = (state, props) => state.getIn(['foodcoop','transactions_view','filter','amount'])
 
-export const getTransactions = (state) => state.getIn(['transactions','data'])
+export const getOrderGroups = (state, props) => state.getIn(['foodcoop','order_groups'])
+
+export const getTransactions = (state) => state.getIn(['foodcoop','transactions'])
+
+
 
 export const getTransactionsFilteredByDate = createSelector(
   [ getDate, getTransactions ],
@@ -50,6 +54,18 @@ export const getVisibleTransactions = createSelector(
 export const getSortedTransactions = createSelector(
     [ getSortField, getVisibleTransactions ],
   (sorted_by, transactions) => {
-      return transactions.sortBy(t => t.get(sorted_by)).toArray()
+      return transactions.sortBy(t => t.get(sorted_by))
   }
+)
+
+export const getDenormalizedTransactions = createSelector(
+    [getSortedTransactions,getOrderGroups],
+    (transactions,order_groups) => {
+        return transactions.withMutations(result => {
+            return transactions.entrySeq().forEach(([key,data]) => {
+                let order_group = order_groups.getIn([data.get('order_group_id'),'name'])
+                result.set(key,data.set('order_group',order_group))
+            })
+        })
+    }
 )

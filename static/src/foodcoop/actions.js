@@ -1,8 +1,8 @@
 import {
-    PATCH,
     GET,
     RECEIVE,
     FILTER_SET,
+    SET_ORDER_GROUP,
 } from './actionTypes'
 
 import {storageAvailable} from '../utils/browser_support'
@@ -10,11 +10,19 @@ import {storageAvailable} from '../utils/browser_support'
 export function loadTransactions(){
     return {
         type: GET,
-        payload: { 
-            ddp:{
-                msg: 'sub',
-                name: 'transactions',
-            }
+        ddp:{
+            msg: 'sub',
+            name: 'transactions',
+        }
+    }
+}
+
+export function loadOrderGroups(){
+    return {
+        type: GET,
+        ddp:{
+            msg: 'sub',
+            name: 'order_groups',
         }
     }
 }
@@ -23,19 +31,14 @@ export function loadTransactions(){
 export function setFilter(field,value) {
     return {
         type: FILTER_SET,
-        payload: {
-            field: field,
-            value: value
-        }
+        field: field,
+        value: value
     }
 }
 
-export function editOrderGroup(id,value) {
+export function setOrderGroup(id,value) {
     return {
-        type: PATCH,
-        collection:'transactions',
-        op:'replace',
-        field:'order_group_id',
+        type: SET_ORDER_GROUP,
         value: value,
         id: id,
     }

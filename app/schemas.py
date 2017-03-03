@@ -52,12 +52,13 @@ sub = {
 rpc = {
     'method':{'type':'string', 'required':True},
     'id':{'type':'string', 'required':True},
-    'params':{'type':'dict', 'required':True},
+    'params':{'type':'dict', 'required':False},
 }
 
 transaction = {
-    'id':{'type':'string', 'required':True},
+    'id':{'type':'integer','required':True},
     'version':{'type':'integer', 'required':False},
+    'based':{'type':'integer', 'required':False},
     'our_iban':{'type':'string', 'required':True},
     'date':{'type':'date', 'required':True},
     'bic_blz':{'type':'string', 'required':False},
@@ -67,4 +68,17 @@ transaction = {
     'comment':{'type':'string', 'required':False},
     'verified':{'type':'boolean', 'required':False},
     'order_group_id':{'type':'integer', 'required':False},
+}
+
+transactions_patch = {
+    'id':{'type':'integer', 'required':True},
+    'version':{'type':'integer', 'required':True},
+    'op':{'type':'string', 'required':True},
+    'field':{'type':'string', 'required':True},
+    'value':{'required':True},
+}
+
+transactions_set_order_group = {
+    'id':{'type':'integer', 'required':True},
+    'group_name':{'type':'string', 'required':True},
 }

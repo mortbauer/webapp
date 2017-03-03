@@ -4,7 +4,7 @@ import DebouncedInput from './DebouncedInput';
 
 const Transaction = ({data}) => (
     <div className="mycontainer">
-        <div className="myitem" style={{width:'5em'}}>{data.get('order_group_id')?data.get('order_group_id'):''}</div>
+        <div className="myitem" style={{width:'5em'}}>{data.get('order_group')}</div>
         <div className="myitem" style={{width:'5em'}}>{data.get('id')}</div>
         <div className="myitem" style={{width:'7em'}}>{data.get('date')}</div>
         <div className="myitem" style={{width:'5em'}}>{data.get('amount')}</div>
@@ -19,7 +19,7 @@ Transaction.propTypes = {
 
 const EditTransaction = ({onChange,data}) => (
     <div className="mycontainer">
-        <DebouncedInput style={{width:'5em'}} value={data.get('order_group_id')?data.get('order_group_id'):''} onChange={onChange}/>
+        <DebouncedInput style={{width:'5em'}} value={data.get('order_group')} onChange={onChange}/>
         <div className="myitem" style={{width:'5em'}}>{data.get('id')}</div>
         <div className="myitem" style={{width:'7em'}}>{data.get('date')}</div>
         <div className="myitem" style={{width:'5em'}}>{data.get('amount')}</div>

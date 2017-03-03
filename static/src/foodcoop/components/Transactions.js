@@ -7,7 +7,7 @@ import Infinite from 'react-infinite';
 import Immutable from 'immutable';
 
 import * as actionCreators from '../actions';
-import { getSortedTransactions } from '../selectors';
+import { getDenormalizedTransactions } from '../selectors';
 
 import { Transaction, EditTransaction} from './Transaction';
 import DebouncedInput from './DebouncedInput';
@@ -15,10 +15,9 @@ import DebouncedInput from './DebouncedInput';
 function mapStateToProps(state) {
     return {
         token: state.getIn(['auth','token']),
-        filter: state.getIn(['transactions','filter']),
-        isFetching: state.getIn(['transactions','isFetching']),
-        //transactions: Immutable.Map({}),
-        transactions: getSortedTransactions(state),
+        filter: state.getIn(['foodcoop','transactions_view','filter']),
+        isFetching: state.getIn(['foodcoop','transactions_view','isFetching']),
+        transactions: getDenormalizedTransactions(state),
     }
 }
 
@@ -40,11 +39,12 @@ export default class Transactions extends React.Component {
 
     componentDidMount() {
         this.props.loadTransactions();
+        this.props.loadOrderGroups();
     }
 
 
     editOrderGroup(id,value){
-        this.props.editOrderGroup(id,value);
+        this.props.setOrderGroup(id,value);
     }
 
     toggleEditing(event){
@@ -53,19 +53,21 @@ export default class Transactions extends React.Component {
 
     renderTransactions(){
         if (!this.state.is_editing){
-            return this.props.transactions.map(
-                t => <Transaction key={t.get('id')} data={t}/>)
+            return this.props.transactions.valueSeq().map((t)=> {
+                return <Transaction key={t.get('id')} data={t}/>
+            })
         }
         else {
-            return this.props.transactions.map(
-                t => <EditTransaction key={t.get('id')} onChange={(v)=>this.editOrderGroup(t.get('id'),v)} data={t}/>)
+            return this.props.transactions.valueSeq().map((t)=>{
+                return <EditTransaction key={t.get('id')} onChange={(v)=>this.editOrderGroup(t.get('id'),v)} data={t}/>
+            })
         }
     }
 
     render() {
         return (
                 <div>
-                    <h1>Transactions</h1>
+                    <h1>Transactions New</h1>
                      <RaisedButton 
                         type="button" 
                         onClick={this.toggleEditing.bind(this)}

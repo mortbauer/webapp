@@ -30,32 +30,38 @@ def runserver(with_gunicorn,production):
         ])
 
 @run.command()
-def create_example_data():
+def create_example_user():
     from app import models
     with app['engine'].begin() as conn:
         with open('users.json','r') as f:
             ins = models.user.insert()
-            users = []
             for data in json.loads(f.read()):
                 data['password'] = app['bcrypt'].hashed_password(data['password'])
-                users.append(data)
-            conn.execute(ins,users)
+                try:
+                    conn.execute(ins,data)
+                except:
+                    conn.execute(models.user.update().where(models.user.c.username==data['username']).values(password=data['password']))
+
+@run.command()
+def create_example_groups():
+    from app import models
+    with app['engine'].begin() as conn:
+        with open('groups.json','r') as f:
+            ins = models.order_group.insert()
+            groups = [{'name':x} for x in json.loads(f.read())]
+            conn.execute(ins,groups)
 
 @run.command()
 def create_example_transactions():
     from app import models
     transactions = []
-    with open('transaction.json','r') as f:
-        for data in json.loads(f.read()):
-            data['date'] = datetime.fromtimestamp(data['date'])
-            data['version'] = 0
-            transactions.append(data)
     with app['engine'].begin() as conn:
+        with open('transaction.json','r') as f:
+            for data in json.loads(f.read()):
+                data['date'] = datetime.fromtimestamp(data['date'])
+                data['version'] = 0
+                transactions.append(data)
         res = conn.execute(models.transaction.insert(),transactions)
-    with app['engine'].begin() as conn:
-        res = conn.execute(models.transaction.select())
-
-
 
 @run.command()
 def build():

@@ -5,16 +5,14 @@ var messages = new Map();
 export function createMiddleware(to_server_handler){
     let counter = 0
     return store => next => action => {
-        if ((action.payload !== undefined) && (action.payload.ddp !== undefined)){
-            if (action.payload.callbackActionType !== undefined){
-                messages.set(counter.toString(),action.payload.callbackActionType)
+        let state = store.getState()
+        if ((action.ddp !== undefined)){
+            let id = (counter++).toString()
+            if (action.callbackActionType !== undefined){
+                messages.set(id,action.callbackActionType)
             }
-            action.payload.ddp.id = counter.toString()
-            to_server_handler(action.payload.ddp);
-        }
-        if (action.type == 'PATCH'){
-            let {type,...params} = action;
-            to_server_handler({msg:'method',method:type.toLowerCase(),params});
+            action.ddp.id = id
+            to_server_handler(action.ddp);
         }
         return next(action);
     }

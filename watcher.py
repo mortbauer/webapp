@@ -46,4 +46,7 @@ class Handler(FileSystemEventHandler):
 
 if __name__ == '__main__':
     w = Watcher()
-    w.run()
+    try:
+        w.run()
+    except KeyboardInterrupt:
+        print('shit')

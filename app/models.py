@@ -14,7 +14,7 @@ user = sa.Table(
     sa.Column('order_group_id',sa.Integer,sa.ForeignKey('order_groups.id')),
 )
 
-group = sa.Table(
+order_group = sa.Table(
     'order_groups',
     metadata,
     sa.Column('id', sa.Integer, primary_key=True),

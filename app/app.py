@@ -5,7 +5,9 @@ import aioredis
 import aiohttp_cors
 from aiohttp import web
 from aiohttp.web_urldispatcher import UrlDispatcher
+
 from . import endpoints
+from . import schemas
 from . import middleware
 from .auth import Authorization, Authentication, Bcrypt
 from . import views_sync as views
@@ -71,10 +73,24 @@ app['publications'] = {
         'acls':{'user'},
         'subscribers':set(),
     },
+    'order_groups':{
+        'method':endpoints.order_groups_get,
+        'acls':{'user'},
+        'subscribers':set(),
+    },
 }
 app['updates'] = {}
 app['endpoints'] = {
-    'transactions_patch':{'method':endpoints.transactions_patch,'acls':{'admin'}},
+        'transactions/patch':{
+            'method':endpoints.transactions_patch,
+            'schema':schemas.transactions_patch,
+            'acls':{'admin'},
+            },
+        'transactions/set_order_group':{
+            'method':endpoints.transactions_set_order_group,
+            'schema':schemas.transactions_set_order_group,
+            'acls':{'admin'},
+            }
 }
 
 async def init_app(app):

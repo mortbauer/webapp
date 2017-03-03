@@ -23,11 +23,11 @@ export default function reducer(state, action) {
             let incoming_unmerged = Immutable.List();
             return action.msgs.reduce((state,msg)=>{
                 let new_data = Immutable.fromJS(msg.fields)
-                if (!state.hasIn([msg.collection,'data',msg.id])){
-                    return state.setIn([msg.collection,'data',msg.id],new_data)
+                if (!state.hasIn(['foodcoop',msg.collection,msg.id])){
+                    return state.setIn(['foodcoop',msg.collection,msg.id],new_data)
                 } else
                 {
-                    let cur_data = state.getIn([msg.collection,'data',msg.id])
+                    let cur_data = state.getIn(['foodcoop',msg.collection,msg.id])
                     if (cur_data.hashCode() != new_data.hashCode()){
                         return state.set(
                             'incoming_unmerged',state.get(

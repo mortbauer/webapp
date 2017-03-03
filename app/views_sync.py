@@ -105,15 +105,25 @@ async def handle_sub(app,ws,ws_id,msg):
         return {'errors':v.errors}
 
 async def handle_method(app,ws,msg):
-    v = Validator(schemas.rpc)
+    v = Validator(schemas.rpc,allow_unknown=True)
     if v.validate(msg):
         if msg['method'] in app['endpoints']:
-            method = app['endpoints'][msg['method']]['method']
+            endpoint = app['endpoints'][msg['method']]
+            if 'params' in msg:
+                v = Validator(endpoint['schema'])
+                if v.validate(msg['params']):
+                    kwargs = msg['params']
+                else:
+                    print('eeeeeee',msg['params'])  
+                    return {'error':v.errors}
+            else:
+                kwargs = {}
+
             try:
-                res = await method(app,msg['params'])
+                res = await endpoint['method'](app,ws,**kwargs)
                 return {'id':msg['id'],'result':res} 
             except Exception as e:
-                return {'id':msg['id'],'error':e} 
+                return {'id':msg['id'],'error':str(e)} 
         else:
             return {'id':msg['id'],'error':'no method %s'%msg['method']}
     else:
@@ -149,6 +159,7 @@ async def websocket_handler(request):
         if msg.tp == MsgType.text:
             print('handling %s'%msg.data)
             result = await handler(json.loads(msg.data))
+            print('response is %s'%result)
             if result is not None:
                 ws.send_str(json.dumps(result))
         elif msg.tp == MsgType.error:

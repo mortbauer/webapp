@@ -57,7 +57,7 @@ export default class DebouncedInput extends React.Component {
 
         this.setState({
             value,
-            tid: setTimeout( this.emitChange.bind(this), 300)
+            tid: setTimeout( this.emitChange.bind(this), 500)
         });
     }
 

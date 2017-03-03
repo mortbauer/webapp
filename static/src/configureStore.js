@@ -17,14 +17,22 @@ const axiosClient = axios.create({
 });
 
 //handling of ws and store should be just fine, see: http://stackoverflow.com/questions/31970675/where-do-long-running-processes-live-in-a-react-redux-application
-const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws');
+const config = {
+    to_sync:[
+        {'collection':['foodcoop','users'],'backend':'users'},
+        {'collection':['foodcoop','order_groups'],'backend':'order_groups'},
+        {'collection':['foodcoop','transactions'],'backend':'transactions'},
+    ]
+}
+
+const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws',config);
 
 // add `autoRehydrate` as an enhancer to your store (note: `autoRehydrate` is not a middleware)
 const storeEnhancers = [
     applyMiddleware(
         thunkMiddleware.withExtraArgument(wsclient),
         axiosMiddleware(axiosClient),
-        ddp.createMiddleware(wsclient.createToServerHandler())
+        wsclient.createMiddleware()
     ),
     autoRehydrate({log:true})
 ];
@@ -53,7 +61,7 @@ export default function configureStore(initialState) {
 
     if (module.hot) {
         // Enable Webpack hot module replacement for reducers
-        module.hot.accept('./transactions/reducer', () => {
+        module.hot.accept('./foodcoop/reducer', () => {
             const nextRootReducer = require('./rootReducer').default;
             store.replaceReducer(nextRootReducer);
         });
