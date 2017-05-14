@@ -19,8 +19,12 @@ export default class WSClient{
         this.incoming = [];
         this.pending = new Map();
         this.to_sync = to_sync;
-        this.enable_actor = true;
+        this.enable_actor = false;
         window.incoming = this.incoming;
+    };
+
+    enableBacksync(){
+        this.enable_actor = true;
     };
 
     connect(token){
@@ -96,7 +100,6 @@ export default class WSClient{
                 ws.websocket.send(msg);
             }
             else {
-                console.log('websocket not ready yet');
                 unsent.push(msg);
             }
         } 
@@ -109,17 +112,18 @@ export default class WSClient{
     }
 
     merge = debounce(function(){
-        this.enable_actor = false;
-        this.store.dispatch({type:MERGE,msgs:[...this.incoming]})
-        this.enable_actor = true;
+        this.store.dispatch({type:'MERGE_FROM_SERVER',msgs:[...this.incoming]})
         this.incoming.length=0
     },200)
 
     handleFromServer(data){
+        this.enable_actor = false;
+        let debug = false;
         switch (data.msg){
             case 'added':
                 this.incoming.push(data);
                 this.merge();
+                debug = true;
                 break;
             case 'result':
                 const status = data.hasOwnProperty('result') ? 'SUCESS' : 'FAILED'
@@ -134,53 +138,30 @@ export default class WSClient{
                 })
                 break;
         }
-    }
-
-    diffMap(a,b){
-        let changed = []
-        if (!Immutable.is(a,b)){
-            a.keySeq().forEach(k => {
-                if (!b.has(k)){
-                    changed.push({op:'removed','id':k})
-                }
-            })
-            b.keySeq().forEach(k => {
-                if (!a.has(k)){
-                    changed.push({op:'added','id':k})
-                } else {
-                    let val_a = a.get(k)
-                    let val_b = b.get(k)
-                    if (!Immutable.is(val_a,val_b)){
-                        changed.push({op:'changed','id':k})
-                    }
-                }
-            })
+        if (debug){
+            console.log('set enable actor to true again')
         }
-        return changed
+        this.enable_actor = true;
     }
 
     syncActor = () => {
+        const state = this.store.getState();
         if (this.enable_actor){
+            console.log('syncActor',state.get('lastAction'));
             this.enable_actor = false;
-            const state = this.store.getState();
             if (!Immutable.is(state,this.state)){
                 this.to_sync.forEach(spec => {
                     let prev = this.state.getIn(spec.collection)
                     let cur = state.getIn(spec.collection)
                     let changed = this.diffMap(prev,cur)
                     if (changed.length){
-                        console.log('BACKSYNC_NEEDED',changed)
-                        this.store.dispatch({
-                            type:'BACKSYNC_NEEDED',
-                            collection:spec.backend,
-                            changed:changed,
-                        })
+                        console.log('need backsync',spec.collection,changed);
                     }
                 })
-                this.state = state
             }
             this.enable_actor = true;
         }
+        this.state = state
     }
 
     createMiddleware(){
@@ -189,14 +170,17 @@ export default class WSClient{
         window.pending = pending
         let to_server_handler = this.createToServerHandler()
         return store => next => action => {
-            let state = store.getState()
-            if ((action.ddp !== undefined)){
+            if ((action.type == 'SUBSCRIBE')){
                 let id = (counter++).toString()
-                if (action.ddp.msg == 'method'){
-                    pending.set(id,action.type)
+                let msg = {
+                    msg: 'sub',
+                    name: action.name,
+                    id: id,
                 }
-                action.ddp.id = id
-                to_server_handler(action.ddp);
+                //if (action.ddp.msg == 'method'){
+                    //pending.set(id,action.type)
+                //}
+                to_server_handler(msg);
             }
             return next(action);
         }

@@ -20,6 +20,7 @@ import {
 export default function reducer(state, action) {
     switch (action.type) {
         case MERGE:
+            console.log('processing merge');
             let incoming_unmerged = Immutable.List();
             return action.msgs.reduce((state,msg)=>{
                 let new_data = Immutable.fromJS(msg.fields)

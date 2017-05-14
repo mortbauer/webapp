@@ -5,25 +5,11 @@ import {
     SET_ORDER_GROUP,
 } from './actionTypes'
 
-import {storageAvailable} from '../utils/browser_support'
 
-export function loadTransactions(){
+export function loadData(collection_name){
     return {
-        type: GET,
-        ddp:{
-            msg: 'sub',
-            name: 'transactions',
-        }
-    }
-}
-
-export function loadOrderGroups(){
-    return {
-        type: GET,
-        ddp:{
-            msg: 'sub',
-            name: 'order_groups',
-        }
+        type: 'SUBSCRIBE',
+        name: collection_name,
     }
 }
 

@@ -2,7 +2,7 @@ import { createStore, applyMiddleware, compose} from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 //import { persistState} from 'redux-devtools';
-import {persistStore, autoRehydrate} from 'redux-persist-immutable'
+import {persistStore, autoRehydrate, defaultStateReconciler} from 'redux-persist-immutable'
 import axios from 'axios';
 import axiosMiddleware from 'redux-axios-middleware';
 
@@ -34,7 +34,8 @@ const storeEnhancers = [
         axiosMiddleware(axiosClient),
         wsclient.createMiddleware()
     ),
-    autoRehydrate({log:true})
+    ddp.mergeFromServer(),
+    autoRehydrate({log:false}),
 ];
 
 if ((process.env.NODE_ENV !== 'production')) {
@@ -54,18 +55,20 @@ export default function configureStore(initialState) {
 
     // begin periodically persisting the store
     window.persistor = persistStore(store,{
-        blacklist:['router','lastAction']
+        blacklist:['router','lastAction'],
+        debounce: 200,
+        keyPrefix: 'webapp',
+        callback: wsclient.enableBacksync, // called after rehydration
     });
 
     wsclient.setStore(store);
 
     if (module.hot) {
         // Enable Webpack hot module replacement for reducers
-        module.hot.accept('./foodcoop/reducer', () => {
-            const nextRootReducer = require('./rootReducer').default;
-            store.replaceReducer(nextRootReducer);
-        });
-        module.hot.accept('./ddp', () => {
+        module.hot.accept([
+            './ddp',
+            './foodcoop/reducer',
+        ],() => {
             const nextRootReducer = require('./rootReducer').default;
             store.replaceReducer(nextRootReducer);
         });

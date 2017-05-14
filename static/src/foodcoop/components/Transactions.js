@@ -38,8 +38,8 @@ export default class Transactions extends React.Component {
     }
 
     componentDidMount() {
-        this.props.loadTransactions();
-        this.props.loadOrderGroups();
+        this.props.loadData('transactions');
+        this.props.loadData('order_groups');
     }
 
 

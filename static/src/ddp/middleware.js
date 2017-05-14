@@ -5,14 +5,19 @@ var messages = new Map();
 export function createMiddleware(to_server_handler){
     let counter = 0
     return store => next => action => {
-        let state = store.getState()
-        if ((action.ddp !== undefined)){
-            let id = (counter++).toString()
-            if (action.callbackActionType !== undefined){
-                messages.set(id,action.callbackActionType)
-            }
-            action.ddp.id = id
-            to_server_handler(action.ddp);
+        switch (action.type) {
+            case 'SUBSCRIBE':
+                console.log('middleware SUBSCRIBE')
+                let id = (counter++).toString()
+                let msg = {
+                    msg: 'sub',
+                    name: name,
+                    id: id,
+                }
+                if (action.callbackActionType !== undefined){
+                    messages.set(id,action.callbackActionType)
+                }
+                to_server_handler(msg);
         }
         return next(action);
     }
