@@ -1,3 +1,10 @@
+__data__
+__playground__
+*.crt
+*.key
+*.rdb
+venv*
+.cache
 *.swp
 *.db
 *.pyc
@@ -7,4 +14,4 @@ venv35
 __pycache__
 htmlcov
 .ipynb_checkpoints
-
+node_modules
