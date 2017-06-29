@@ -4,12 +4,9 @@ import Immutable from 'immutable';
 import {MERGE} from './actionTypes';
 
 var unsent = [];
-var outgoing = new Map();
-
-window.outgoing = outgoing;
 
 export default class WSClient{
-    constructor(url,{reconnectDecay=1.5,reconnectInterval=2000,to_sync=[]}){
+    constructor(url,enable_backsync,disable_backsync,reconnectDecay=1.5,reconnectInterval=2000){
         this.url = url;
         this.reconnectInterval = reconnectInterval;
         this.reconnectDecay = reconnectDecay;
@@ -18,13 +15,8 @@ export default class WSClient{
         this.websocket = null;
         this.incoming = [];
         this.pending = new Map();
-        this.to_sync = to_sync;
-        this.enable_actor = false;
-        window.incoming = this.incoming;
-    };
-
-    enableBacksync(){
-        this.enable_actor = true;
+        this.enable_backsync = enable_backsync;
+        this.disable_backsync = disable_backsync;
     };
 
     connect(token){
@@ -104,26 +96,22 @@ export default class WSClient{
             }
         } 
     }
-    
+
     setStore(store){
         this.store = store;
-        this.state = store.getState();
-        store.subscribe(this.syncActor)
     }
-
+    
     merge = debounce(function(){
         this.store.dispatch({type:'MERGE_FROM_SERVER',msgs:[...this.incoming]})
         this.incoming.length=0
     },200)
 
     handleFromServer(data){
-        this.enable_actor = false;
-        let debug = false;
+        this.disable_backsync();
         switch (data.msg){
             case 'added':
                 this.incoming.push(data);
                 this.merge();
-                debug = true;
                 break;
             case 'result':
                 const status = data.hasOwnProperty('result') ? 'SUCESS' : 'FAILED'
@@ -138,30 +126,7 @@ export default class WSClient{
                 })
                 break;
         }
-        if (debug){
-            console.log('set enable actor to true again')
-        }
-        this.enable_actor = true;
-    }
-
-    syncActor = () => {
-        const state = this.store.getState();
-        if (this.enable_actor){
-            console.log('syncActor',state.get('lastAction'));
-            this.enable_actor = false;
-            if (!Immutable.is(state,this.state)){
-                this.to_sync.forEach(spec => {
-                    let prev = this.state.getIn(spec.collection)
-                    let cur = state.getIn(spec.collection)
-                    let changed = this.diffMap(prev,cur)
-                    if (changed.length){
-                        console.log('need backsync',spec.collection,changed);
-                    }
-                })
-            }
-            this.enable_actor = true;
-        }
-        this.state = state
+        this.enable_backsync();
     }
 
     createMiddleware(){
