@@ -3,8 +3,6 @@ import Immutable from 'immutable';
 
 import {MERGE} from './actionTypes';
 
-var unsent = [];
-
 export default class WSClient{
     constructor(url,enable_backsync,disable_backsync,reconnectDecay=1.5,reconnectInterval=2000){
         this.url = url;
@@ -14,6 +12,7 @@ export default class WSClient{
         this.connected = false;
         this.websocket = null;
         this.incoming = [];
+        this.unsent = [];
         this.pending = new Map();
         this.enable_backsync = enable_backsync;
         this.disable_backsync = disable_backsync;
@@ -48,8 +47,8 @@ export default class WSClient{
                         'token':token,
                     }
                 }));
-                while (unsent.length){
-                    this.websocket.send(unsent.shift());
+                while (this.unsent.length){
+                    this.websocket.send(this.unsent.shift());
                 };
             }
 
@@ -74,27 +73,23 @@ export default class WSClient{
             console.log(`could not parse to json ${msg}`);
         }
         if (!!data){
-            this.handleFromServer(data);
-            
+            this.send_to_redux(data);
         }
     }
 
-    createToServerHandler(){
-        let ws = this;
-        return function(data){
-            try{
-                var msg = JSON.stringify(data);
-            }catch(err){
-                console.log(`could not stringify to json ${data}`);
-            }
-            console.log(`to server handler sending ${msg}`);
-            if (!!ws.websocket && ws.websocket.readyState){
-                ws.websocket.send(msg);
-            }
-            else {
-                unsent.push(msg);
-            }
-        } 
+    send_to_backend = (data) => {
+        try{
+            var msg = JSON.stringify(data);
+        }catch(err){
+            console.log(`could not stringify to json ${data}`);
+        }
+        console.log(`to server handler sending ${msg}`);
+        if (!!this.websocket && this.websocket.readyState){
+            this.websocket.send(msg);
+        }
+        else {
+            this.unsent.push(msg);
+        }
     }
 
     setStore(store){
@@ -106,7 +101,7 @@ export default class WSClient{
         this.incoming.length=0
     },200)
 
-    handleFromServer(data){
+    send_to_redux(data){
         this.disable_backsync();
         switch (data.msg){
             case 'added':
@@ -131,21 +126,14 @@ export default class WSClient{
 
     createMiddleware(){
         let counter = 0
-        let pending = this.pending
-        window.pending = pending
-        let to_server_handler = this.createToServerHandler()
         return store => next => action => {
             if ((action.type == 'SUBSCRIBE')){
                 let id = (counter++).toString()
-                let msg = {
-                    msg: 'sub',
-                    name: action.name,
-                    id: id,
-                }
+                let msg = {msg: 'sub',name: action.name,id: id};
                 //if (action.ddp.msg == 'method'){
                     //pending.set(id,action.type)
                 //}
-                to_server_handler(msg);
+                this.send_to_backend(msg);
             }
             return next(action);
         }

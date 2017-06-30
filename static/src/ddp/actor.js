@@ -1,5 +1,3 @@
-'use strict';
-
 import Immutable from 'immutable';
 
 function diffMap(a,b){
@@ -26,7 +24,7 @@ function diffMap(a,b){
     return changed
 }
 
-export default class Syncer{
+export default class BackSyncer{
     constructor(to_sync=[]){
         this.to_sync = to_sync;
         this.enable_actor = true;
@@ -34,44 +32,37 @@ export default class Syncer{
         this.store = null;
     }
     
-    enable_backsync(){
-        return () => {
-            this.enable_actor = true;
-        }
+    enable_backsync = () => {
+        this.enable_actor = true;
     }
 
-    disable_backsync(){
-        return () => {
-            this.enable_actor = false;
-        }
+    disable_backsync = () => {
+        this.enable_actor = false;
     }
 
     subscribe(store){
         this.store = store;
         this.state = store.getState();
-        store.subscribe(this.actor());
-        //this.store.subscribe(this.actor);
+        this.store.subscribe(this.actor);
     }
 
-    actor(store){
-        return () => {
-            const state = this.store.getState();
-            if (this.enable_actor){
-                console.log('syncActor',this.enable_actor,state.get('lastAction'));
-                this.enable_actor = false;
-                if (!Immutable.is(state,this.state)){
-                    this.to_sync.forEach(spec => {
-                        let prev = this.state.getIn(spec.collection)
-                        let cur = state.getIn(spec.collection)
-                        let changed = diffMap(prev,cur)
-                        if (changed.length){
-                            console.log('need backsync',spec.collection,changed);
-                        }
-                    })
-                }
-                this.enable_actor = true;
+    actor = () => {
+        const state = this.store.getState();
+        if (this.enable_actor){
+            //console.log('syncActor',this.enable_actor,state.get('lastAction'));
+            this.enable_actor = false;
+            if (!Immutable.is(state,this.state)){
+                this.to_sync.forEach(spec => {
+                    let prev = this.state.getIn(spec.collection)
+                    let cur = state.getIn(spec.collection)
+                    let changed = diffMap(prev,cur)
+                    if (changed.length){
+                        console.log('need backsync',spec.collection,changed);
+                    }
+                })
             }
-            this.state = state
+            this.enable_actor = true;
         }
+        this.state = state
     }
 };

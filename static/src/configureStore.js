@@ -9,7 +9,7 @@ import axiosMiddleware from 'redux-axios-middleware';
 import rootReducer from './rootReducer';
 import DevTools from './containers/DevTools';
 import ddp from './ddp';
-import Syncer from './ddp/actor';
+import BackSyncer from './ddp/actor';
 
 
 const axiosClient = axios.create({
@@ -24,9 +24,9 @@ const to_sync = [
         {'collection':['foodcoop','transactions'],'backend':'transactions'},
     ]
 
-const syncer = new Syncer(to_sync);
+const syncer = new BackSyncer(to_sync);
 
-const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws',syncer.enable_backsync(),syncer.disable_backsync());
+const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws',syncer.enable_backsync,syncer.disable_backsync);
 
 // add `autoRehydrate` as an enhancer to your store (note: `autoRehydrate` is not a middleware)
 const storeEnhancers = [
