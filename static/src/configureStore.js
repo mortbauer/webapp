@@ -26,14 +26,14 @@ const to_sync = [
 
 const syncer = new BackSyncer(to_sync);
 
-const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws',syncer.enable_backsync,syncer.disable_backsync);
+const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws',syncer.send_to_redux);
 
 // add `autoRehydrate` as an enhancer to your store (note: `autoRehydrate` is not a middleware)
 const storeEnhancers = [
     applyMiddleware(
         thunkMiddleware.withExtraArgument(wsclient),
         axiosMiddleware(axiosClient),
-        wsclient.createMiddleware()
+        syncer.createMiddleware(wsclient.send_to_backend)
     ),
     //ddp.mergeFromServer(),
     //autoRehydrate({log:true}),
@@ -62,8 +62,6 @@ export default function configureStore(initialState) {
         //keyPrefix: 'webapp',
     /*},wsclient.enableBacksync);*/
 
-
-    wsclient.setStore(store);
     syncer.subscribe(store);
 
     if (module.hot) {
