@@ -1,4 +1,5 @@
-export const MERGE = "DDP/merge";
+export const MERGE = "BACKEND/merge";
+export const BACKSYNC = "BACKEND/backsync";
 export const CONNECT = "DDP/connect";
 export const CONNECTED = "DDP/connected";
 export const FAILED = "DDP/failed";
@@ -17,4 +18,3 @@ export const MOVEDBEFORE = "DDP/movedBefore";
 export const METHOD = "DDP/method";
 export const RESULT = "DDP/result";
 export const UPDATED = "DDP/updated";
-

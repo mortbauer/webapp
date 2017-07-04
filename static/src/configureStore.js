@@ -18,13 +18,9 @@ const axiosClient = axios.create({
 });
 
 //handling of ws and store should be just fine, see: http://stackoverflow.com/questions/31970675/where-do-long-running-processes-live-in-a-react-redux-application
-const to_sync = [
-        {'collection':['foodcoop','users'],'backend':'users'},
-        {'collection':['foodcoop','order_groups'],'backend':'order_groups'},
-        {'collection':['foodcoop','transactions'],'backend':'transactions'},
-    ]
+const to_sync = ['users','transactions','order_groups'];
 
-const syncer = new BackSyncer(to_sync);
+const syncer = new BackSyncer('foodcoop',to_sync);
 
 const wsclient = new ddp.WSClient('ws://localhost:5000/api/ws',syncer.send_to_redux);
 

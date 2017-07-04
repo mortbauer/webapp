@@ -1,3 +1,4 @@
+import {MERGE,BACKSYNC} from './actionTypes';
 import debounce from 'debounce';
 import Immutable from 'immutable';
 
@@ -26,64 +27,66 @@ function diffMap(a,b){
 }
 
 export default class BackSyncer{
-    constructor(to_sync=[]){
-        this.to_sync = to_sync;
-        this.enable_actor = true;
+    constructor(rootKey=null,to_sync=[]){
+        this.rootKey = rootKey;
         this.state = null;
+        this.to_sync = to_sync;
         this.store = null;
         this.incoming = [];
         this.pending = new Map();
     }
     
-    enable_backsync(){
-        this.enable_actor = true;
-    }
-
-    disable_backsync(){
-        this.enable_actor = false;
-    }
-
     subscribe(store){
         this.store = store;
-        this.state = store.getState();
+        if (this.rootKey !== null){
+            this.state = store.getState().get(this.rootKey);
+        } else {
+            this.state = store.getState();
+        }
         this.store.subscribe(this.actor);
     }
 
     actor = () => {
-        const state = this.store.getState();
-        if (this.enable_actor){
-            //console.log('syncActor',this.enable_actor,state.get('lastAction'));
-            this.enable_actor = false;
+        var state = this.store.getState();
+        const disable_backsync = state.get('lastAction')['disable_backsync']; 
+        if (this.rootKey !== null){
+            state = state.get(this.rootKey)
+        }
+        if (!disable_backsync){
             if (!Immutable.is(state,this.state)){
-                this.to_sync.forEach(spec => {
-                    let prev = this.state.getIn(spec.collection)
-                    let cur = state.getIn(spec.collection)
+                this.to_sync.forEach(key => {
+                    let prev = this.state.get(key)
+                    let cur = state.get(key)
                     let changed = diffMap(prev,cur)
                     if (changed.length){
-                        console.log('need backsync',spec.collection,changed);
+                        this.store.dispatch({
+                            disable_backsync:true,
+                            type:BACKSYNC,
+                            collection:key,
+                            changed:changed,
+                        });
                     }
                 })
             }
-            this.enable_actor = true;
         }
         this.state = state
     }
 
-    merge = debounce(function(){
-        this.store.dispatch({type:'MERGE_FROM_SERVER',msgs:[...this.incoming]})
+    dispatch_merge = debounce(function(){
+        this.store.dispatch({type:MERGE,disable_backsync:true,msgs:[...this.incoming]})
         this.incoming.length=0
     },200)
 
     send_to_redux = (data) => {
-        this.disable_backsync();
         switch (data.msg){
             case 'added':
                 this.incoming.push(data);
-                this.merge();
+                this.dispatch_merge();
                 break;
             case 'result':
                 const status = data.hasOwnProperty('result') ? 'SUCESS' : 'FAILED'
                 const {msg,id,...action} = data 
+                action.disable_backsync = true
                 action.type = `${this.pending[data.id]}_${status}`
                 this.store.dispatch(action)
                 break;
@@ -91,10 +94,10 @@ export default class BackSyncer{
                 this.store.dispatch({
                     type:'SUBS_READY',
                     ids:data.subs,
+                    disable_backsync:true,
                 })
                 break;
         }
-        this.enable_backsync();
     }
 
     createMiddleware(send_to_backend){
